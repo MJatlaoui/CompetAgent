@@ -22,6 +22,14 @@ Published: {item['published']}
             messages=[{"role": "user", "content": user_content}]
         )
         raw = resp.content[0].text.strip()
+        # Strip markdown code fences if Claude wraps the JSON
+        if raw.startswith("```"):
+            lines = raw.splitlines()
+            # Remove first line (```json or ```) and last line (```)
+            inner = lines[1:] if lines[-1].strip() == "```" else lines[1:]
+            if inner and inner[-1].strip() == "```":
+                inner = inner[:-1]
+            raw = "\n".join(inner).strip()
         return json.loads(raw)
     except Exception as e:
         print(f"[WARN] Intelligence filter failed for {item['url']}: {e}")
