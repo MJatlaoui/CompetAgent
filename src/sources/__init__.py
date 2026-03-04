@@ -1,9 +1,10 @@
+from .base import SourceAdapter
 from .rss import RSSAdapter
 from .html import HTMLAdapter
 
 # Registry: maps `type:` value in sources.yaml to its adapter instance.
 # To add a new source type, add one entry here and create the adapter file.
-ADAPTERS: dict = {
+ADAPTERS: dict[str, SourceAdapter] = {
     "rss":  RSSAdapter(),
     "html": HTMLAdapter(),
 }

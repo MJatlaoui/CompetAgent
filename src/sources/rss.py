@@ -1,6 +1,6 @@
 import hashlib
 import feedparser
-from datetime import datetime
+from datetime import datetime, UTC
 from .base import FeedItem
 
 
@@ -20,6 +20,6 @@ class RSSAdapter:
                 title=entry.get("title", ""),
                 url=entry.get("link", ""),
                 summary=entry.get("summary", entry.get("description", ""))[:2000],
-                published=entry.get("published", datetime.utcnow().isoformat()),
+                published=entry.get("published", datetime.now(UTC).isoformat()),
             ))
         return items

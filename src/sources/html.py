@@ -1,7 +1,8 @@
 import hashlib
 import httpx
 from bs4 import BeautifulSoup
-from datetime import datetime
+from datetime import datetime, UTC
+from urllib.parse import urljoin
 from .base import FeedItem
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; IntelBot/1.0)"}
@@ -23,8 +24,8 @@ class HTMLAdapter:
         items: list[FeedItem] = []
         for el in soup.select(selector)[:20]:
             href = el.get("href", "")
-            if href and not href.startswith("http"):
-                href = base_url + href
+            if href:
+                href = urljoin(base_url or url, href)
             title = el.get_text(strip=True)
             item_id = hashlib.sha256(href.encode()).hexdigest()[:16]
             items.append(FeedItem(
@@ -33,6 +34,6 @@ class HTMLAdapter:
                 title=title,
                 url=href,
                 summary=title,
-                published=datetime.utcnow().isoformat(),
+                published=datetime.now(UTC).isoformat(),
             ))
         return items
