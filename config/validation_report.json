@@ -1,0 +1,909 @@
+{
+  "generated_at": "2026-03-04T19:46:13.491804+00:00",
+  "total": 100,
+  "pass": 34,
+  "fail": 63,
+  "skip": 3,
+  "results": [
+    {
+      "name": "CX Today",
+      "category": "CX / CCaaS News",
+      "url": "https://www.cxtoday.com/feed/",
+      "type": "rss",
+      "notes": "High-signal CX news",
+      "status": "PASS",
+      "reason": "10 entries found"
+    },
+    {
+      "name": "CMSWire - Customer Experience",
+      "category": "CX / DX",
+      "url": "https://www.cmswire.com/customer-experience/feed/",
+      "type": "rss",
+      "notes": "Strong enterprise coverage",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://www.cmswire.com/customer-experience/feed/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "No Jitter",
+      "category": "CCaaS / UCaaS",
+      "url": "https://www.nojitter.com/rss.xml",
+      "type": "rss",
+      "notes": "Comms + contact center",
+      "status": "PASS",
+      "reason": "50 entries found"
+    },
+    {
+      "name": "Destination CRM",
+      "category": "CRM / CX",
+      "url": "https://www.destinationcrm.com/RSS/AllArticles.aspx",
+      "type": "rss",
+      "notes": "Broad CRM industry",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://www.destinationcrm.com/RSS/AllArticles.aspx'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "CustomerThink",
+      "category": "CX Strategy",
+      "url": "https://customerthink.com/feed/",
+      "type": "rss",
+      "notes": "Practitioner + thought leadership",
+      "status": "FAIL",
+      "reason": "Client error '415 Unsupported Media Type' for url 'https://customerthink.com/feed/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/415"
+    },
+    {
+      "name": "Contact Center Pipeline",
+      "category": "Contact Center Ops",
+      "url": "https://www.contactcenterpipeline.com/feed",
+      "type": "rss",
+      "notes": "Ops-focused",
+      "status": "PASS",
+      "reason": "100 entries found"
+    },
+    {
+      "name": "ICMI Blog",
+      "category": "Contact Center Ops",
+      "url": "https://www.icmi.com/resources/blog/rss.xml",
+      "type": "rss",
+      "notes": "Training + WFM + ops",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://www.icmi.com/resources/blog/rss.xml'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Call Centre Helper",
+      "category": "Contact Center Ops",
+      "url": "https://www.callcentrehelper.com/feed",
+      "type": "rss",
+      "notes": "Practical tips",
+      "status": "PASS",
+      "reason": "10 entries found"
+    },
+    {
+      "name": "MarTech",
+      "category": "MarTech / CX Adjacent",
+      "url": "https://martech.org/feed/",
+      "type": "rss",
+      "notes": "Marketing-tech overlap",
+      "status": "PASS",
+      "reason": "10 entries found"
+    },
+    {
+      "name": "MarTech Series",
+      "category": "MarTech / CX Adjacent",
+      "url": "https://www.martechseries.com/feed/",
+      "type": "rss",
+      "notes": "High volume",
+      "status": "PASS",
+      "reason": "10 entries found"
+    },
+    {
+      "name": "CX Network",
+      "category": "CX",
+      "url": "https://www.cxnetwork.com/rss/articles",
+      "type": "rss",
+      "notes": "Use category feeds too",
+      "status": "PASS",
+      "reason": "12 entries found"
+    },
+    {
+      "name": "CCW Digital",
+      "category": "Contact Center",
+      "url": "https://www.customercontactweekdigital.com/rss-feeds",
+      "type": "rss",
+      "notes": "Choose specific feed endpoints",
+      "status": "FAIL",
+      "reason": "Feed parsed but has 0 entries"
+    },
+    {
+      "name": "UC Today",
+      "category": "UCaaS / CCaaS",
+      "url": "https://www.uctoday.com/feed/",
+      "type": "rss",
+      "notes": "Often covers CCaaS",
+      "status": "PASS",
+      "reason": "16 entries found"
+    },
+    {
+      "name": "TechTarget - Customer Experience",
+      "category": "CX / IT",
+      "url": "https://www.techtarget.com/searchcustomerexperience/rss",
+      "type": "rss",
+      "notes": "B2B IT lens",
+      "status": "FAIL",
+      "reason": "Feed parsed but has 0 entries"
+    },
+    {
+      "name": "TechTarget - CRM",
+      "category": "CRM",
+      "url": "https://www.techtarget.com/searchcrm/rss",
+      "type": "rss",
+      "notes": "CRM-specific",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://www.techtarget.com/searchcrm/rss'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "VentureBeat AI",
+      "category": "AI News",
+      "url": "https://venturebeat.com/category/ai/feed/",
+      "type": "rss",
+      "notes": "AI commercialization",
+      "status": "PASS",
+      "reason": "7 entries found"
+    },
+    {
+      "name": "TechCrunch AI",
+      "category": "AI / Startups",
+      "url": "https://techcrunch.com/category/artificial-intelligence/feed/",
+      "type": "rss",
+      "notes": "Funding + launches",
+      "status": "PASS",
+      "reason": "19 entries found"
+    },
+    {
+      "name": "The Verge AI",
+      "category": "AI / Tech",
+      "url": "https://www.theverge.com/artificial-intelligence/rss/index.xml",
+      "type": "rss",
+      "notes": "Consumer + enterprise",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://www.theverge.com/artificial-intelligence/rss/index.xml'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "ZDNET AI",
+      "category": "AI / Enterprise Tech",
+      "url": "https://www.zdnet.com/topic/artificial-intelligence/rss.xml",
+      "type": "rss",
+      "notes": "Enterprise angle",
+      "status": "PASS",
+      "reason": "20 entries found"
+    },
+    {
+      "name": "Ars Technica",
+      "category": "AI / Tech",
+      "url": "https://feeds.arstechnica.com/arstechnica/technology-lab",
+      "type": "rss",
+      "notes": "Tech depth",
+      "status": "PASS",
+      "reason": "20 entries found"
+    },
+    {
+      "name": "The Register",
+      "category": "AI / Enterprise IT",
+      "url": "https://www.theregister.com/headlines.atom",
+      "type": "rss",
+      "notes": "Use filtering on ingest",
+      "status": "PASS",
+      "reason": "50 entries found"
+    },
+    {
+      "name": "Wired Business",
+      "category": "Tech / AI",
+      "url": "https://www.wired.com/feed/category/business/latest/rss",
+      "type": "rss",
+      "notes": "Often relevant to AI",
+      "status": "PASS",
+      "reason": "20 entries found"
+    },
+    {
+      "name": "MIT Tech Review AI",
+      "category": "AI",
+      "url": "https://www.technologyreview.com/feed/",
+      "type": "rss",
+      "notes": "Strong analysis",
+      "status": "PASS",
+      "reason": "10 entries found"
+    },
+    {
+      "name": "IEEE Spectrum",
+      "category": "AI / Engineering",
+      "url": "https://spectrum.ieee.org/feeds/feed.rss",
+      "type": "rss",
+      "notes": "Technical but useful",
+      "status": "PASS",
+      "reason": "30 entries found"
+    },
+    {
+      "name": "The Information",
+      "category": "Tech / SaaS",
+      "url": null,
+      "type": "rss",
+      "notes": "No native RSS (monitor site); paywalled",
+      "status": "SKIP",
+      "reason": "No RSS feed available"
+    },
+    {
+      "name": "OpenAI Blog",
+      "category": "AI",
+      "url": null,
+      "type": "rss",
+      "notes": "No official RSS (use generator)",
+      "status": "SKIP",
+      "reason": "No RSS feed available"
+    },
+    {
+      "name": "Anthropic News",
+      "category": "AI",
+      "url": "https://www.anthropic.com/news/rss.xml",
+      "type": "rss",
+      "notes": "Native RSS",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://www.anthropic.com/news/rss.xml'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Google AI Blog",
+      "category": "AI",
+      "url": "https://blog.google/technology/ai/rss/",
+      "type": "rss",
+      "notes": "Native RSS",
+      "status": "PASS",
+      "reason": "20 entries found"
+    },
+    {
+      "name": "DeepMind Blog",
+      "category": "AI",
+      "url": "https://deepmind.google/discover/blog/rss.xml",
+      "type": "rss",
+      "notes": "Native RSS",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://deepmind.google/discover/blog/rss.xml/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Microsoft AI Blog",
+      "category": "AI",
+      "url": "https://blogs.microsoft.com/ai/feed/",
+      "type": "rss",
+      "notes": "Native RSS",
+      "status": "PASS",
+      "reason": "10 entries found"
+    },
+    {
+      "name": "Microsoft Dynamics 365",
+      "category": "CRM",
+      "url": "https://cloudblogs.microsoft.com/dynamics365/feed/",
+      "type": "rss",
+      "notes": "D365 + CX/ERP",
+      "status": "PASS",
+      "reason": "10 entries found"
+    },
+    {
+      "name": "Salesforce Blog",
+      "category": "CRM",
+      "url": "https://www.salesforce.com/blog/feed/",
+      "type": "rss",
+      "notes": "Huge; consider filtering",
+      "status": "PASS",
+      "reason": "10 entries found"
+    },
+    {
+      "name": "Salesforce Service Cloud",
+      "category": "CRM / Service",
+      "url": "https://www.salesforce.com/blog/category/service/feed/",
+      "type": "rss",
+      "notes": "If available in RSS resolver",
+      "status": "PASS",
+      "reason": "10 entries found"
+    },
+    {
+      "name": "HubSpot Blog",
+      "category": "CRM / Marketing",
+      "url": "https://blog.hubspot.com/rss.xml",
+      "type": "rss",
+      "notes": "Strong GTM + CS",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://blog.hubspot.com/rss.xml'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Zoho Blog",
+      "category": "CRM",
+      "url": "https://www.zoho.com/blog/feed/",
+      "type": "rss",
+      "notes": "Product + SMB insights",
+      "status": "PASS",
+      "reason": "10 entries found"
+    },
+    {
+      "name": "Oracle CX Blog",
+      "category": "CRM / CX",
+      "url": "https://blogs.oracle.com/cx/rss",
+      "type": "rss",
+      "notes": "Common endpoint; verify",
+      "status": "FAIL",
+      "reason": "Client error '403 Forbidden' for url 'https://blogs.oracle.com/cx/rss'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403"
+    },
+    {
+      "name": "SAP Customer Experience",
+      "category": "CRM / CX",
+      "url": "https://news.sap.com/tag/customer-experience/feed/",
+      "type": "rss",
+      "notes": "Tag-based feed",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://news.sap.com/tag/customer-experience/feed/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Adobe Blog DX",
+      "category": "DX / CX",
+      "url": "https://blog.adobe.com/en/rss.xml",
+      "type": "rss",
+      "notes": "Broad; filter by tags",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://blog.adobe.com/en/rss.xml'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Mailchimp Resources",
+      "category": "Marketing / CX Adjacent",
+      "url": "https://mailchimp.com/resources/rss/",
+      "type": "rss",
+      "notes": "Verify per locale",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://mailchimp.com/resources/rss/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Pipedrive Blog",
+      "category": "CRM",
+      "url": "https://www.pipedrive.com/en/blog/feed",
+      "type": "rss",
+      "notes": "SMB CRM trends",
+      "status": "FAIL",
+      "reason": "Feed parsed but has 0 entries"
+    },
+    {
+      "name": "Freshworks Blog",
+      "category": "CX / CRM",
+      "url": "https://www.freshworks.com/company/blog/rss/",
+      "type": "rss",
+      "notes": "Freshdesk/Freshchat etc",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://www.freshworks.com/company/blog/rss/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Zendesk Blog",
+      "category": "CX",
+      "url": "https://www.zendesk.com/blog/rss.xml",
+      "type": "rss",
+      "notes": "Great CX signal",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://www.zendesk.com/blog/rss.xml'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "ServiceNow Blog",
+      "category": "Workflow / CX",
+      "url": "https://www.servicenow.com/community/rss/board?board.id=blog",
+      "type": "rss",
+      "notes": "Some communities expose RSS",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://www.servicenow.com/community/rss/board?board.id=blog'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Pegasystems Blog",
+      "category": "CRM / Automation",
+      "url": "https://www.pega.com/rss.xml",
+      "type": "rss",
+      "notes": "Automation + case mgmt",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://www.pega.com/rss.xml'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "SugarCRM Blog",
+      "category": "CRM",
+      "url": "https://www.sugarcrm.com/blog/feed/",
+      "type": "rss",
+      "notes": "Mid-market CRM",
+      "status": "PASS",
+      "reason": "10 entries found"
+    },
+    {
+      "name": "Creatio Blog",
+      "category": "CRM",
+      "url": "https://www.creatio.com/page/blog/rss.xml",
+      "type": "rss",
+      "notes": "Low-code CRM",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://www.creatio.com/page/blog/rss.xml'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Copper CRM Blog",
+      "category": "CRM",
+      "url": "https://www.copper.com/blog/rss.xml",
+      "type": "rss",
+      "notes": "SMB/Google Workspace CRM",
+      "status": "FAIL",
+      "reason": "Feed parsed but has 0 entries"
+    },
+    {
+      "name": "Keap Blog",
+      "category": "CRM / SMB",
+      "url": "https://keap.com/blog/feed",
+      "type": "rss",
+      "notes": "SMB automation",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://keap.com/blog/feed'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Insightly Blog",
+      "category": "CRM",
+      "url": "https://www.insightly.com/blog/feed/",
+      "type": "rss",
+      "notes": "CRM/marketing",
+      "status": "FAIL",
+      "reason": "Client error '403 Forbidden' for url 'https://www.insightly.com/blog/feed/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403"
+    },
+    {
+      "name": "Monday.com Blog",
+      "category": "Work mgmt / CX Adjacent",
+      "url": "https://monday.com/blog/feed/",
+      "type": "rss",
+      "notes": "Ops + workflows",
+      "status": "FAIL",
+      "reason": "Feed parsed but has 0 entries"
+    },
+    {
+      "name": "Intercom Blog",
+      "category": "CX / Support",
+      "url": "https://www.intercom.com/blog/rss.xml",
+      "type": "rss",
+      "notes": "Support + AI",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://www.intercom.com/blog/rss.xml'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Help Scout Blog",
+      "category": "CX / Support",
+      "url": "https://www.helpscout.com/blog/rss/",
+      "type": "rss",
+      "notes": "Practical CX writing",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://www.helpscout.com/blog/rss/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Gorgias Blog",
+      "category": "eCom Support",
+      "url": "https://www.gorgias.com/blog/rss.xml",
+      "type": "rss",
+      "notes": "Shopify support world",
+      "status": "PASS",
+      "reason": "100 entries found"
+    },
+    {
+      "name": "Kustomer Blog",
+      "category": "CX Platform",
+      "url": "https://www.kustomer.com/blog/rss/",
+      "type": "rss",
+      "notes": "CRM-like CX",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://www.kustomer.com/blog/rss/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Gladly Blog",
+      "category": "CX Platform",
+      "url": "https://www.gladly.com/blog/feed/",
+      "type": "rss",
+      "notes": "Service-focused",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://www.gladly.ai/blog/feed/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Sprinklr Blog",
+      "category": "CX / Social",
+      "url": "https://www.sprinklr.com/blog/feed/",
+      "type": "rss",
+      "notes": "Social CX",
+      "status": "FAIL",
+      "reason": "Feed parsed but has 0 entries"
+    },
+    {
+      "name": "Qualtrics Blog",
+      "category": "VoC / XM",
+      "url": "https://www.qualtrics.com/blog/feed/",
+      "type": "rss",
+      "notes": "VoC + XM",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://www.qualtrics.com/blog/feed/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Medallia Blog",
+      "category": "VoC",
+      "url": "https://www.medallia.com/blog/feed/",
+      "type": "rss",
+      "notes": "VoC + analytics",
+      "status": "FAIL",
+      "reason": "Feed parsed but has 0 entries"
+    },
+    {
+      "name": "InMoment Blog",
+      "category": "VoC",
+      "url": "https://inmoment.com/blog/feed/",
+      "type": "rss",
+      "notes": "VoC + CX",
+      "status": "FAIL",
+      "reason": "Feed parsed but has 0 entries"
+    },
+    {
+      "name": "NICE Blog",
+      "category": "CCaaS",
+      "url": "https://www.nice.com/blog/rss",
+      "type": "rss",
+      "notes": "Verify; often supported",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://www.nice.com/blog/rss'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Genesys Blog",
+      "category": "CCaaS",
+      "url": "https://www.genesys.com/blog/rss",
+      "type": "rss",
+      "notes": "Major CCaaS",
+      "status": "PASS",
+      "reason": "1 entries found"
+    },
+    {
+      "name": "Five9 Blog",
+      "category": "CCaaS",
+      "url": "https://www.five9.com/blog/rss.xml",
+      "type": "rss",
+      "notes": "Major CCaaS",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://www.five9.com/blog/rss.xml'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Talkdesk Blog",
+      "category": "CCaaS",
+      "url": "https://www.talkdesk.com/blog/feed/",
+      "type": "rss",
+      "notes": "Major CCaaS",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://www.talkdesk.com/blog/feed/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "RingCentral Blog",
+      "category": "UCaaS / CCaaS",
+      "url": "https://www.ringcentral.com/us/en/blog/feed/",
+      "type": "rss",
+      "notes": "Comms + CC",
+      "status": "PASS",
+      "reason": "10 entries found"
+    },
+    {
+      "name": "8x8 Blog",
+      "category": "CCaaS",
+      "url": "https://www.8x8.com/blog/feed",
+      "type": "rss",
+      "notes": "Comms + CC",
+      "status": "FAIL",
+      "reason": "Client error '429 Too Many Requests' for url 'https://www.8x8.com/blog/feed'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/429"
+    },
+    {
+      "name": "Cisco Webex Blog",
+      "category": "UCaaS / CCaaS",
+      "url": "https://blog.webex.com/feed/",
+      "type": "rss",
+      "notes": "Enterprise comms",
+      "status": "PASS",
+      "reason": "12 entries found"
+    },
+    {
+      "name": "Avaya Blog",
+      "category": "CCaaS",
+      "url": "https://www.avaya.com/en/blogs/rss/",
+      "type": "rss",
+      "notes": "Vendor updates",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://www.avaya.com/en/blogs/rss/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Twilio Blog",
+      "category": "CPaaS / CX",
+      "url": "https://www.twilio.com/blog/rss.xml",
+      "type": "rss",
+      "notes": "Messaging + CX",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://www.twilio.com/en-us/blog/rss.xml'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Twilio Segment Blog",
+      "category": "CDP / Data",
+      "url": "https://segment.com/blog/rss.xml",
+      "type": "rss",
+      "notes": "CDP angle",
+      "status": "FAIL",
+      "reason": "Server error '500 Internal Server Error' for url 'https://segment.com/blog/rss.xml'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500"
+    },
+    {
+      "name": "Sinch Blog",
+      "category": "CPaaS",
+      "url": "https://sinch.com/blog/feed/",
+      "type": "rss",
+      "notes": "Messaging",
+      "status": "PASS",
+      "reason": "10 entries found"
+    },
+    {
+      "name": "Vonage API Blog",
+      "category": "CPaaS",
+      "url": "https://developer.vonage.com/en/blog/rss.xml",
+      "type": "rss",
+      "notes": "Dev lens",
+      "status": "FAIL",
+      "reason": "Feed parsed but has 0 entries"
+    },
+    {
+      "name": "Amazon Connect Blog",
+      "category": "CCaaS",
+      "url": "https://aws.amazon.com/blogs/contact-center/feed/",
+      "type": "rss",
+      "notes": "High-signal",
+      "status": "PASS",
+      "reason": "20 entries found"
+    },
+    {
+      "name": "Google Cloud AI Blog",
+      "category": "Cloud AI",
+      "url": "https://cloudblog.withgoogle.com/products/ai-machine-learning/rss/",
+      "type": "rss",
+      "notes": "Filter by keywords",
+      "status": "PASS",
+      "reason": "20 entries found"
+    },
+    {
+      "name": "Microsoft Azure Blog",
+      "category": "Cloud AI",
+      "url": "https://azure.microsoft.com/en-us/blog/feed/",
+      "type": "rss",
+      "notes": "Filter by AI/CX",
+      "status": "PASS",
+      "reason": "10 entries found"
+    },
+    {
+      "name": "NVIDIA AI Blog",
+      "category": "AI Infra",
+      "url": "https://blogs.nvidia.com/blog/category/ai/feed/",
+      "type": "rss",
+      "notes": "Infra for CX AI",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://blogs.nvidia.com/blog/category/ai/feed/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Zoom Blog",
+      "category": "UCaaS / CCaaS",
+      "url": "https://blog.zoom.us/feed/",
+      "type": "rss",
+      "notes": "Product + CX topics",
+      "status": "FAIL",
+      "reason": "The read operation timed out"
+    },
+    {
+      "name": "Zoom Developer Blog",
+      "category": "Dev / Platform",
+      "url": "https://developers.zoom.us/blog/feed/",
+      "type": "rss",
+      "notes": "Integrations + APIs",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://developers.zoom.us/blog/feed/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Slack Blog",
+      "category": "Collaboration",
+      "url": "https://slack.com/blog/feed",
+      "type": "rss",
+      "notes": "Ops + automation",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://slack.com/blog/feed'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Atlassian Blog",
+      "category": "Work mgmt",
+      "url": "https://www.atlassian.com/blog/feed",
+      "type": "rss",
+      "notes": "Service mgmt + ops",
+      "status": "FAIL",
+      "reason": "Feed parsed but has 0 entries"
+    },
+    {
+      "name": "Jira Service Management Blog",
+      "category": "ITSM / CX",
+      "url": "https://www.atlassian.com/blog/service-management/feed",
+      "type": "rss",
+      "notes": "If supported",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://www.atlassian.com/blog/service-management/feed'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "ServiceNow Dev Blog",
+      "category": "Platform",
+      "url": null,
+      "type": "rss",
+      "notes": "No native RSS; monitor",
+      "status": "SKIP",
+      "reason": "No RSS feed available"
+    },
+    {
+      "name": "Okta Blog",
+      "category": "Identity / CX Security",
+      "url": "https://www.okta.com/blog/feed/",
+      "type": "rss",
+      "notes": "Auth impacts CX",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://www.okta.com/blog/feed/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Cloudflare Blog",
+      "category": "Security / Perf",
+      "url": "https://blog.cloudflare.com/rss/",
+      "type": "rss",
+      "notes": "Web perf + security",
+      "status": "PASS",
+      "reason": "20 entries found"
+    },
+    {
+      "name": "Akamai Blog",
+      "category": "Security / Perf",
+      "url": "https://www.akamai.com/blog/rss.xml",
+      "type": "rss",
+      "notes": "Edge/perf",
+      "status": "FAIL",
+      "reason": "Client error '403 Forbidden' for url 'https://www.akamai.com/blog/rss.xml'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403"
+    },
+    {
+      "name": "Stripe Blog",
+      "category": "Payments / CX",
+      "url": "https://stripe.com/blog/rss.xml",
+      "type": "rss",
+      "notes": "Checkout CX",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://stripe.com/blog/rss.xml'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Adyen Blog",
+      "category": "Payments / CX",
+      "url": "https://www.adyen.com/blog/rss.xml",
+      "type": "rss",
+      "notes": "Payments CX",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://www.adyen.com/blog/rss.xml'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Shopify Blog",
+      "category": "eCom CX",
+      "url": "https://www.shopify.com/blog.atom",
+      "type": "rss",
+      "notes": "Atom feed; feedparser handles",
+      "status": "FAIL",
+      "reason": "Feed parsed but has 0 entries"
+    },
+    {
+      "name": "BigCommerce Blog",
+      "category": "eCom CX",
+      "url": "https://www.bigcommerce.com/blog/rss/",
+      "type": "rss",
+      "notes": "eCom ops",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://www.bigcommerce.com/blog/rss/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Klaviyo Blog",
+      "category": "Marketing",
+      "url": "https://www.klaviyo.com/blog/rss",
+      "type": "rss",
+      "notes": "Lifecycle + retention",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://www.klaviyo.com/blog/rss'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Braze Blog",
+      "category": "Engagement",
+      "url": "https://www.braze.com/resources/articles/rss.xml",
+      "type": "rss",
+      "notes": "Messaging + personalization",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://www.braze.com/resources/articles/rss.xml'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Iterable Blog",
+      "category": "Engagement",
+      "url": "https://iterable.com/blog/feed/",
+      "type": "rss",
+      "notes": "Lifecycle marketing",
+      "status": "FAIL",
+      "reason": "Client error '410 Gone' for url 'https://iterable.com/blog/feed/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/410"
+    },
+    {
+      "name": "Amplitude Blog",
+      "category": "Product analytics",
+      "url": "https://amplitude.com/blog/rss.xml",
+      "type": "rss",
+      "notes": "Product-led CX",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://amplitude.com/blog/rss.xml'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Mixpanel Blog",
+      "category": "Analytics",
+      "url": "https://mixpanel.com/blog/rss/",
+      "type": "rss",
+      "notes": "Product insights",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://mixpanel.com/blog/rss/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Contentsquare Blog",
+      "category": "DX analytics",
+      "url": "https://contentsquare.com/blog/feed/",
+      "type": "rss",
+      "notes": "Digital experience",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://contentsquare.com/blog/feed/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Hotjar Blog",
+      "category": "DX research",
+      "url": "https://www.hotjar.com/blog/rss/",
+      "type": "rss",
+      "notes": "UX/CX intersection",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://www.hotjar.com/blog/rss/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Baymard Institute",
+      "category": "UX / Checkout",
+      "url": "https://baymard.com/blog/feed",
+      "type": "rss",
+      "notes": "High-signal UX research",
+      "status": "FAIL",
+      "reason": "Feed parsed but has 0 entries"
+    },
+    {
+      "name": "Nielsen Norman Group",
+      "category": "UX",
+      "url": "https://www.nngroup.com/feed/rss/",
+      "type": "rss",
+      "notes": "Research depth",
+      "status": "PASS",
+      "reason": "20 entries found"
+    },
+    {
+      "name": "Harvard Business Review CX",
+      "category": "Strategy",
+      "url": "https://hbr.org/topic/customer-experience/rss",
+      "type": "rss",
+      "notes": "Management lens",
+      "status": "FAIL",
+      "reason": "Feed parsed but has 0 entries"
+    },
+    {
+      "name": "McKinsey Digital",
+      "category": "Strategy",
+      "url": "https://www.mckinsey.com/capabilities/mckinsey-digital/rss",
+      "type": "rss",
+      "notes": "Macro trends",
+      "status": "FAIL",
+      "reason": "Client error '404 Not Found' for url 'https://www.mckinsey.com/capabilities/tech-and-ai/rss'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404"
+    },
+    {
+      "name": "Forrester Blogs",
+      "category": "Research",
+      "url": "https://go.forrester.com/blogs/feed/",
+      "type": "rss",
+      "notes": "Analyst perspective",
+      "status": "PASS",
+      "reason": "10 entries found"
+    }
+  ]
+}

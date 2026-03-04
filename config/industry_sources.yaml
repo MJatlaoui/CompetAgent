@@ -1,0 +1,171 @@
+industry_sources:
+- category: CX / CCaaS News
+  feeds:
+  - type: rss
+    url: https://www.cxtoday.com/feed/
+  name: CX Today
+- category: CCaaS / UCaaS
+  feeds:
+  - type: rss
+    url: https://www.nojitter.com/rss.xml
+  name: No Jitter
+- category: Contact Center Ops
+  feeds:
+  - type: rss
+    url: https://www.contactcenterpipeline.com/feed
+  name: Contact Center Pipeline
+- category: Contact Center Ops
+  feeds:
+  - type: rss
+    url: https://www.callcentrehelper.com/feed
+  name: Call Centre Helper
+- category: MarTech / CX Adjacent
+  feeds:
+  - type: rss
+    url: https://martech.org/feed/
+  name: MarTech
+- category: MarTech / CX Adjacent
+  feeds:
+  - type: rss
+    url: https://www.martechseries.com/feed/
+  name: MarTech Series
+- category: CX
+  feeds:
+  - type: rss
+    url: https://www.cxnetwork.com/rss/articles
+  name: CX Network
+- category: UCaaS / CCaaS
+  feeds:
+  - type: rss
+    url: https://www.uctoday.com/feed/
+  name: UC Today
+- category: AI News
+  feeds:
+  - type: rss
+    url: https://venturebeat.com/category/ai/feed/
+  name: VentureBeat AI
+- category: AI / Startups
+  feeds:
+  - type: rss
+    url: https://techcrunch.com/category/artificial-intelligence/feed/
+  name: TechCrunch AI
+- category: AI / Enterprise Tech
+  feeds:
+  - type: rss
+    url: https://www.zdnet.com/topic/artificial-intelligence/rss.xml
+  name: ZDNET AI
+- category: AI / Tech
+  feeds:
+  - type: rss
+    url: https://feeds.arstechnica.com/arstechnica/technology-lab
+  name: Ars Technica
+- category: AI / Enterprise IT
+  feeds:
+  - type: rss
+    url: https://www.theregister.com/headlines.atom
+  name: The Register
+- category: Tech / AI
+  feeds:
+  - type: rss
+    url: https://www.wired.com/feed/category/business/latest/rss
+  name: Wired Business
+- category: AI
+  feeds:
+  - type: rss
+    url: https://www.technologyreview.com/feed/
+  name: MIT Tech Review AI
+- category: AI / Engineering
+  feeds:
+  - type: rss
+    url: https://spectrum.ieee.org/feeds/feed.rss
+  name: IEEE Spectrum
+- category: AI
+  feeds:
+  - type: rss
+    url: https://blog.google/technology/ai/rss/
+  name: Google AI Blog
+- category: AI
+  feeds:
+  - type: rss
+    url: https://blogs.microsoft.com/ai/feed/
+  name: Microsoft AI Blog
+- category: CRM
+  feeds:
+  - type: rss
+    url: https://cloudblogs.microsoft.com/dynamics365/feed/
+  name: Microsoft Dynamics 365
+- category: CRM
+  feeds:
+  - type: rss
+    url: https://www.salesforce.com/blog/feed/
+  name: Salesforce Blog
+- category: CRM / Service
+  feeds:
+  - type: rss
+    url: https://www.salesforce.com/blog/category/service/feed/
+  name: Salesforce Service Cloud
+- category: CRM
+  feeds:
+  - type: rss
+    url: https://www.zoho.com/blog/feed/
+  name: Zoho Blog
+- category: CRM
+  feeds:
+  - type: rss
+    url: https://www.sugarcrm.com/blog/feed/
+  name: SugarCRM Blog
+- category: eCom Support
+  feeds:
+  - type: rss
+    url: https://www.gorgias.com/blog/rss.xml
+  name: Gorgias Blog
+- category: CCaaS
+  feeds:
+  - type: rss
+    url: https://www.genesys.com/blog/rss
+  name: Genesys Blog
+- category: UCaaS / CCaaS
+  feeds:
+  - type: rss
+    url: https://www.ringcentral.com/us/en/blog/feed/
+  name: RingCentral Blog
+- category: UCaaS / CCaaS
+  feeds:
+  - type: rss
+    url: https://blog.webex.com/feed/
+  name: Cisco Webex Blog
+- category: CPaaS
+  feeds:
+  - type: rss
+    url: https://sinch.com/blog/feed/
+  name: Sinch Blog
+- category: CCaaS
+  feeds:
+  - type: rss
+    url: https://aws.amazon.com/blogs/contact-center/feed/
+  name: Amazon Connect Blog
+- category: Cloud AI
+  feeds:
+  - type: rss
+    url: https://cloudblog.withgoogle.com/products/ai-machine-learning/rss/
+  name: Google Cloud AI Blog
+- category: Cloud AI
+  feeds:
+  - type: rss
+    url: https://azure.microsoft.com/en-us/blog/feed/
+  name: Microsoft Azure Blog
+- category: Security / Perf
+  feeds:
+  - type: rss
+    url: https://blog.cloudflare.com/rss/
+  name: Cloudflare Blog
+- category: UX
+  feeds:
+  - type: rss
+    url: https://www.nngroup.com/feed/rss/
+  name: Nielsen Norman Group
+- category: Research
+  feeds:
+  - type: rss
+    url: https://go.forrester.com/blogs/feed/
+  name: Forrester Blogs
