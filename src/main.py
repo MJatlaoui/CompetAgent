@@ -1,8 +1,11 @@
 import yaml
+from pathlib import Path
 from src.database import init_db, is_seen, mark_seen, save_pending
 from src.sources import load_sources
 from src.intelligence import analyze_item
 from src.delivery import post_insight
+
+INDUSTRY_SOURCES_PATH = "config/industry_sources.yaml"
 
 
 def run():
@@ -12,6 +15,16 @@ def run():
         sources_cfg = yaml.safe_load(f)
     with open("config/strategy.yaml") as f:
         strategy_cfg = yaml.safe_load(f)
+
+    # Merge validated industry sources if the file exists
+    industry_path = Path(INDUSTRY_SOURCES_PATH)
+    if industry_path.exists():
+        industry_data = yaml.safe_load(industry_path.read_text()) or {}
+        for src in industry_data.get("industry_sources", []):
+            sources_cfg["competitors"].append({
+                "name": src["name"],
+                "feeds": src["feeds"],
+            })
 
     threshold = strategy_cfg.get("score_threshold", 7)
     items = load_sources(sources_cfg)
