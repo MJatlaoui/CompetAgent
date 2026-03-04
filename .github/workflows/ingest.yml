@@ -1,0 +1,37 @@
+name: Competitive Intel Ingestion
+
+on:
+  schedule:
+    - cron: "0 */2 * * *"   # Every 2 hours
+  workflow_dispatch:          # Manual trigger for testing
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write         # Needed to commit seen.db back to repo
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run ingestion
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
+        run: python -m src.main
+
+      - name: Commit updated seen.db
+        run: |
+          git config user.name "intel-bot"
+          git config user.email "bot@noreply"
+          git add data/seen.db
+          git diff --staged --quiet || git commit -m "chore: update seen items db [skip ci]"
+          git push

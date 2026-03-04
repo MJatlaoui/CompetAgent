@@ -1,0 +1,38 @@
+name: Approval Checker
+
+on:
+  schedule:
+    - cron: "30 * * * *"    # Every hour at :30
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run approval checker
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+        run: python -m src.approve
+
+      - name: Commit updated db
+        run: |
+          git config user.name "intel-bot"
+          git config user.email "bot@noreply"
+          git add data/seen.db
+          git diff --staged --quiet || git commit -m "chore: update approval states [skip ci]"
+          git push
