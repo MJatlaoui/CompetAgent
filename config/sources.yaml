@@ -1,0 +1,38 @@
+competitors:
+  - name: Genesys
+    feeds:
+      - type: rss
+        url: https://www.genesys.com/blog/feed
+      - type: rss
+        url: https://developer.genesys.cloud/blog/feed.xml
+
+  - name: Five9
+    feeds:
+      - type: rss
+        url: https://www.five9.com/blog/feed
+
+  - name: NICE_CXone
+    feeds:
+      - type: rss
+        url: https://www.nice.com/resources/blog/feed
+
+  - name: Amazon_Connect
+    feeds:
+      - type: html
+        url: https://aws.amazon.com/releasenotes/?tag=relatedto%23amazon-connect
+        selector: ".item-title a"
+        base_url: "https://aws.amazon.com"
+
+  - name: Talkdesk
+    feeds:
+      - type: rss
+        url: https://www.talkdesk.com/blog/feed/
+
+  - name: Salesforce_ServiceCloud
+    feeds:
+      - type: rss
+        url: https://www.salesforce.com/blog/feed/
+      - type: html
+        url: https://help.salesforce.com/s/articleView?id=release-notes.salesforce_release_notes.htm
+        selector: "h2.slds-text-heading_medium"
+        base_url: "https://help.salesforce.com"

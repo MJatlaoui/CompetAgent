@@ -1,0 +1,13 @@
+# Relevance score >= this threshold gets sent to Slack
+score_threshold: 7
+
+priorities:
+  - "Native Salesforce CRM integration (CTI, Service Cloud Voice, Einstein features)"
+  - "AI virtual agent or self-service IVR improvements"
+  - "Omnichannel routing changes (voice, chat, email, social)"
+  - "Workforce management or quality management automation"
+  - "Outbound dialing or campaign management capabilities"
+  - "Pricing model or packaging changes (per-seat, consumption-based)"
+  - "API or developer platform changes that affect third-party integrations"
+  - "Security or compliance certifications (HIPAA, FedRAMP, GDPR)"
+  - "Partnership announcements with major CRM or cloud vendors"
