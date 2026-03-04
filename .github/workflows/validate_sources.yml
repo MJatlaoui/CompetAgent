@@ -1,0 +1,42 @@
+name: Validate Pending Sources
+
+on:
+  workflow_dispatch:
+    inputs:
+      write_yaml:
+        description: "Write passing sources to industry_sources.yaml and commit"
+        type: boolean
+        default: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Validate sources (report only)
+        if: ${{ inputs.write_yaml == false }}
+        run: python tools/validate_sources.py config/pending_sources.json
+
+      - name: Validate sources (write to YAML)
+        if: ${{ inputs.write_yaml == true }}
+        run: python tools/validate_sources.py config/pending_sources.json --write-yaml
+
+      - name: Commit results
+        if: ${{ inputs.write_yaml == true }}
+        run: |
+          git config user.name "intel-bot"
+          git config user.email "bot@noreply"
+          git add config/validation_report.json config/industry_sources.yaml
+          git diff --staged --quiet || git commit -m "chore: update source validation results [skip ci]"
+          git push
