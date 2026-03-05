@@ -1,5 +1,5 @@
 # Relevance score >= this threshold gets sent to Slack
-score_threshold: 7
+score_threshold: 6
 
 priorities:
   - "Native Salesforce CRM integration (CTI, Service Cloud Voice, Einstein features)"
