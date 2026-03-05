@@ -1,7 +1,6 @@
 import pytest
 import json
 from pathlib import Path
-from unittest.mock import patch
 
 
 @pytest.fixture(autouse=True)
@@ -40,27 +39,60 @@ def test_mark_seen_idempotent():
     from src.database import init_db, mark_seen, is_seen
     init_db()
     mark_seen("dup", "Title", "https://example.com", "Five9")
-    mark_seen("dup", "Title", "https://example.com", "Five9")  # should not raise
+    mark_seen("dup", "Title", "https://example.com", "Five9")
     assert is_seen("dup") is True
 
 
-def test_save_and_get_pending():
+def test_save_pending_with_uuid():
     from src.database import init_db, save_pending, get_pending
     init_db()
     insight = {"headline": "Test insight", "score": 8}
-    save_pending("12345.67890", "item_abc", insight)
+    save_pending("item_abc", insight)
     rows = get_pending()
     assert len(rows) == 1
-    ts, iid, ins = rows[0]
-    assert ts == "12345.67890"
+    uid, iid, ins = rows[0]
+    assert len(uid) == 36  # UUID format
     assert iid == "item_abc"
     assert ins["headline"] == "Test insight"
 
 
-def test_update_status_approved():
+def test_save_pending_generates_unique_ids():
+    from src.database import init_db, save_pending, get_pending
+    init_db()
+    save_pending("item_1", {"score": 5})
+    save_pending("item_2", {"score": 6})
+    rows = get_pending()
+    assert len(rows) == 2
+    assert rows[0][0] != rows[1][0]  # different UUIDs
+
+
+def test_update_status_with_uuid():
     from src.database import init_db, save_pending, get_pending, update_status
     init_db()
-    save_pending("99.00", "item_xyz", {"score": 9})
-    update_status("99.00", "approved")
+    save_pending("item_xyz", {"score": 9})
+    rows = get_pending()
+    uid = rows[0][0]
+    update_status(uid, "approved")
     pending = get_pending()
-    assert len(pending) == 0  # approved items no longer in pending list
+    assert len(pending) == 0
+
+
+def test_get_all_insights():
+    from src.database import init_db, save_pending, get_all_insights, update_status
+    init_db()
+    save_pending("item_1", {"score": 5, "headline": "Low"})
+    save_pending("item_2", {"score": 9, "headline": "High"})
+    rows = get_all_insights()
+    assert len(rows) == 2
+    uid, iid, ins, posted_at, status, tags = rows[0]
+    assert status == "pending"
+    assert tags == []
+
+
+def test_get_trends():
+    from src.database import init_db, save_pending, get_trends
+    init_db()
+    save_pending("item_1", {"score": 5, "competitor": "Genesys", "classification": "FEATURE_LAUNCH"})
+    save_pending("item_2", {"score": 9, "competitor": "Five9", "classification": "TECHNICAL_SHIFT"})
+    trends = get_trends()
+    assert len(trends) >= 1
