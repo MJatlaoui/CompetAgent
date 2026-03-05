@@ -17,6 +17,13 @@ jobs:
           import os
           from slack_sdk import WebClient
           client = WebClient(token=os.environ["SLACK_BOT_TOKEN"])
+          # Join the channel first (required before posting)
+          channel = os.environ["SLACK_CHANNEL_ID"]
+          try:
+              client.conversations_join(channel=channel)
+              print(f"Joined channel {channel}")
+          except Exception as e:
+              print(f"Join note: {e}")
           resp = client.chat_postMessage(
               channel=os.environ["SLACK_CHANNEL_ID"],
               text="🔔 *CompetAgent test message* — Slack integration is working! (sent from test_slack workflow)"

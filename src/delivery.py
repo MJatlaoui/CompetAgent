@@ -19,8 +19,24 @@ CLASSIFICATION_EMOJI = {
 }
 
 
+_joined = False
+
+
+def _ensure_in_channel():
+    """Join the Slack channel if we haven't already this session."""
+    global _joined
+    if _joined:
+        return
+    try:
+        client.conversations_join(channel=SLACK_CHANNEL)
+    except SlackApiError:
+        pass  # already in channel or other non-fatal issue
+    _joined = True
+
+
 def post_insight(insight: dict) -> str | None:
     """Post a formatted insight card to Slack. Returns the message ts."""
+    _ensure_in_channel()
     emoji = CLASSIFICATION_EMOJI.get(insight["classification"], "📌")
     score_bar = "█" * insight["score"] + "░" * (10 - insight["score"])
 
