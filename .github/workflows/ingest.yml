@@ -24,8 +24,9 @@ jobs:
       - name: Run ingestion
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
+          # SLACK_ENABLED: "true"  # Uncomment to enable Slack notifications
+          # SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          # SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
         run: python -m src.main
 
       - name: Commit updated seen.db
