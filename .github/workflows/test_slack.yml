@@ -1,0 +1,25 @@
+name: Test Slack
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send test message
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
+        run: |
+          pip install slack-sdk -q
+          python - <<'EOF'
+          import os
+          from slack_sdk import WebClient
+          client = WebClient(token=os.environ["SLACK_BOT_TOKEN"])
+          resp = client.chat_postMessage(
+              channel=os.environ["SLACK_CHANNEL_ID"],
+              text="🔔 *CompetAgent test message* — Slack integration is working! (sent from test_slack workflow)"
+          )
+          print(f"Message posted: ts={resp['ts']}, channel={resp['channel']}")
+          EOF
