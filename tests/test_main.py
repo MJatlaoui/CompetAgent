@@ -51,13 +51,11 @@ def test_run_posts_high_score_items_to_slack(tmp_path, monkeypatch):
          patch("src.main.Path.exists", return_value=False), \
          patch("src.main.load_sources", return_value=[MOCK_ITEM]), \
          patch("src.main.analyze_item", return_value=HIGH_SCORE_INSIGHT), \
-         patch("src.main.post_insight", return_value="12345.67890") as mock_post, \
-         patch("src.main.save_pending") as mock_save:
+         patch("src.main.save_pending", return_value="fake-uuid") as mock_save:
 
         from src.main import run
         run()
 
-    mock_post.assert_called_once_with(HIGH_SCORE_INSIGHT)
     mock_save.assert_called_once()
 
 
@@ -70,12 +68,12 @@ def test_run_skips_low_score_items(tmp_path, monkeypatch):
          patch("src.main.Path.exists", return_value=False), \
          patch("src.main.load_sources", return_value=[MOCK_ITEM]), \
          patch("src.main.analyze_item", return_value=LOW_SCORE_INSIGHT), \
-         patch("src.main.post_insight") as mock_post:
+         patch("src.main.save_pending") as mock_save:
 
         from src.main import run
         run()
 
-    mock_post.assert_not_called()
+    mock_save.assert_not_called()
 
 
 def test_run_skips_already_seen_items(tmp_path, monkeypatch):

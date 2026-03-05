@@ -1,11 +1,12 @@
+import os
 import yaml
 from pathlib import Path
 from src.database import init_db, is_seen, mark_seen, save_pending
 from src.sources import load_sources
 from src.intelligence import analyze_item
-from src.delivery import post_insight
 
 INDUSTRY_SOURCES_PATH = "config/industry_sources.yaml"
+SLACK_ENABLED = os.environ.get("SLACK_ENABLED", "").lower() == "true"
 
 
 def run():
@@ -46,10 +47,12 @@ def run():
         print(f"[{item['competitor']}] Score {score} | {insight.get('classification')} | {item['title'][:60]}")
 
         if worth_it and score >= threshold:
-            slack_ts = post_insight(insight)
-            if slack_ts:
-                save_pending(slack_ts, item["id"], insight)
-                print(f"  → Posted to Slack (ts={slack_ts})")
+            uid = save_pending(item["id"], insight)
+            print(f"  -> Saved insight (id={uid})")
+
+            if SLACK_ENABLED:
+                from src.delivery import post_insight
+                post_insight(insight)
 
 
 if __name__ == "__main__":
