@@ -211,6 +211,7 @@ industry_sources:
   name: CustomerThink
 - category: CRM / CCaaS
   tier: 1
+  disabled: true
   feeds:
   - type: rss
     url: https://www.destinationcrm.com/rss/Articles.aspx
@@ -219,7 +220,7 @@ industry_sources:
   tier: 1
   feeds:
   - type: rss
-    url: https://www.icmi.com/resources/rss
+    url: https://www.icmi.com/resources/articles?rss=1
   name: ICMI
 - category: CCaaS / Telecom
   tier: 1
@@ -237,10 +238,11 @@ industry_sources:
   tier: 1
   feeds:
   - type: rss
-    url: https://opusresearch.net/wordpress/feed/
+    url: https://opusresearch.net/feed/
   name: Opus Research
 - category: CCaaS / VoIP
   tier: 2
+  disabled: true
   feeds:
   - type: rss
     url: https://getvoip.com/blog/feed/
@@ -275,6 +277,7 @@ industry_sources:
 - name: BCStrategies
   category: UCaaS / CCaaS Analyst
   tier: 1
+  disabled: true
   feeds:
   - type: rss
     url: https://www.bcstrategies.com/feed
@@ -323,6 +326,7 @@ industry_sources:
 - name: Brent Leary CRM Essentials
   category: CRM Analyst
   tier: 2
+  disabled: true
   feeds:
   - type: rss
     url: https://crm-essentials.com/feed/
@@ -367,6 +371,7 @@ industry_sources:
 - name: Speech Technology Magazine
   category: Speech / IVR / AI
   tier: 2
+  disabled: true
   feeds:
   - type: rss
     url: https://www.speechtechmag.com/rss/Articles.aspx
@@ -397,7 +402,7 @@ industry_sources:
   tier: 2
   feeds:
   - type: rss
-    url: https://www.ben-evans.com/feed
+    url: https://www.ben-evans.com/benedictevans/rss.xml
 
 - name: Stratechery
   category: Tech Strategy
@@ -411,6 +416,7 @@ industry_sources:
   category: Contact Center Ops
   tier: 2
   refresh_hours: 4
+  disabled: true
   feeds:
   - type: rss
     url: https://www.reddit.com/r/contactcenter/.rss
@@ -419,6 +425,7 @@ industry_sources:
   category: Contact Center Ops
   tier: 2
   refresh_hours: 4
+  disabled: true
   feeds:
   - type: rss
     url: https://www.reddit.com/r/callcentre/.rss
@@ -429,7 +436,7 @@ industry_sources:
   refresh_hours: 4
   feeds:
   - type: rss
-    url: https://www.reddit.com/r/salesforce/.rss
+    url: https://www.reddit.com/r/salesforce.rss
 
 - name: r/CustomerSuccess
   category: CX / CS
@@ -541,6 +548,7 @@ industry_sources:
 - name: CX Leader Podcast
   category: CX Thought Leadership
   tier: 2
+  disabled: true
   feeds:
   - type: rss
     url: https://feeds.simplecast.com/fgIKgwGb
@@ -548,6 +556,7 @@ industry_sources:
 - name: Amazing Business Radio
   category: CX Thought Leadership
   tier: 2
+  disabled: true
   feeds:
   - type: rss
     url: https://amazingbusinessradio.libsyn.com/rss
@@ -555,6 +564,7 @@ industry_sources:
 - name: Conversations That Matter NICE
   category: CCaaS / AI
   tier: 2
+  disabled: true
   feeds:
   - type: rss
     url: https://feeds.buzzsprout.com/1934879.rss
@@ -585,6 +595,7 @@ industry_sources:
 - name: AI Breakfast
   category: AI Digest
   tier: 3
+  disabled: true
   feeds:
   - type: rss
     url: https://aibreakfast.beehiiv.com/feed
@@ -594,4 +605,4 @@ industry_sources:
   tier: 2
   feeds:
   - type: rss
-    url: https://tldr.tech/ai/rss
+    url: https://tldr.tech/api/rss/ai

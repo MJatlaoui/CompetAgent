@@ -19,6 +19,7 @@ export interface CompetitorSource {
   name: string;
   feeds: Feed[];
   refresh_hours?: number;
+  disabled?: boolean;
 }
 
 export interface IndustrySource {
@@ -27,6 +28,7 @@ export interface IndustrySource {
   tier: 1 | 2;
   feeds: Feed[];
   refresh_hours?: number;
+  disabled?: boolean;
 }
 
 function readCompetitors(): CompetitorSource[] {
@@ -83,6 +85,28 @@ export function addIndustrySource(name: string, category: string, tier: 1 | 2, f
 export function removeIndustrySource(name: string): void {
   const industry = readIndustry().filter((s) => s.name !== name);
   writeIndustry(industry);
+}
+
+export function toggleSourceEnabled(
+  sourceType: "competitor" | "industry",
+  name: string,
+  enabled: boolean,
+): void {
+  if (sourceType === "competitor") {
+    const competitors = readCompetitors();
+    const src = competitors.find((c) => c.name === name);
+    if (src) {
+      if (enabled) { delete src.disabled; } else { src.disabled = true; }
+      writeCompetitors(competitors);
+    }
+  } else {
+    const industry = readIndustry();
+    const src = industry.find((s) => s.name === name);
+    if (src) {
+      if (enabled) { delete src.disabled; } else { src.disabled = true; }
+      writeIndustry(industry);
+    }
+  }
 }
 
 export function updateRefreshHours(

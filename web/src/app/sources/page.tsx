@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Trash2, Plus, Rss, Globe, ChevronDown, ChevronUp, Clock, Download, Upload } from "lucide-react";
+import { Trash2, Plus, Rss, Globe, ChevronDown, ChevronUp, Clock, Download, Upload, FlaskConical, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import type { CompetitorSource, IndustrySource, Feed } from "@/lib/sources";
 
 const REFRESH_OPTIONS = [
@@ -18,6 +19,10 @@ const REFRESH_OPTIONS = [
   { label: "48 h",   value: 48 },
   { label: "72 h",   value: 72 },
 ];
+
+type FeedTestResult = { url: string; ok: boolean; status?: number; error?: string };
+type SourceTestResult = { ok: boolean; feeds: FeedTestResult[] };
+type TestMap = Record<string, SourceTestResult>;
 
 function formatRelative(isoStr: string | undefined): string {
   if (!isoStr) return "never";
@@ -42,30 +47,63 @@ function formatNextFetch(isoStr: string | undefined, refreshHours: number): stri
   return `in ${Math.floor(hrs / 24)}d`;
 }
 
+// ─── Toggle switch ─────────────────────────────────────────────────────────────
+function Toggle({ enabled, onChange, disabled }: { enabled: boolean; onChange: (v: boolean) => void; disabled?: boolean }) {
+  return (
+    <button
+      onClick={() => !disabled && onChange(!enabled)}
+      disabled={disabled}
+      title={enabled ? "Disable source" : "Enable source"}
+      className={cn(
+        "relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors focus:outline-none",
+        enabled ? "bg-green-500" : "bg-gray-300",
+        disabled && "opacity-50 cursor-not-allowed",
+      )}
+    >
+      <span className={cn(
+        "inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform",
+        enabled ? "translate-x-[18px]" : "translate-x-0.5",
+      )} />
+    </button>
+  );
+}
+
+// ─── Test badge ────────────────────────────────────────────────────────────────
+function TestBadge({ result, testing }: { result: SourceTestResult | undefined; testing: boolean }) {
+  if (testing) return <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />;
+  if (!result) return null;
+  if (result.ok) return <span title="All feeds reachable"><CheckCircle2 className="w-4 h-4 text-green-500" /></span>;
+  const err = result.feeds.find((f) => !f.ok)?.error ?? "Failed";
+  return <span title={err}><XCircle className="w-4 h-4 text-red-500" /></span>;
+}
+
 // ─── Feed pill ────────────────────────────────────────────────────────────────
-function FeedPill({ feed }: { feed: Feed }) {
+function FeedPill({ feed, testResult }: { feed: Feed; testResult?: FeedTestResult }) {
   const Icon = feed.type === "rss" ? Rss : Globe;
   return (
-    <span className="inline-flex items-center gap-1 text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full max-w-xs truncate" title={feed.url}>
-      <Icon className="w-3 h-3 shrink-0" />
-      {feed.url}
-    </span>
+    <div className="flex items-center gap-1.5">
+      <span
+        className="inline-flex items-center gap-1 text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full max-w-xs truncate"
+        title={feed.url}
+      >
+        <Icon className="w-3 h-3 shrink-0" />
+        {feed.url}
+      </span>
+      {testResult && (
+        testResult.ok
+          ? <CheckCircle2 className="w-3 h-3 text-green-500 shrink-0" />
+          : <span className="text-xs text-red-500 shrink-0">{testResult.error}</span>
+      )}
+    </div>
   );
 }
 
 // ─── Refresh selector ─────────────────────────────────────────────────────────
 function RefreshSelector({
-  name,
-  sourceType,
-  currentHours,
-  lastFetched,
-  onSaved,
+  name, sourceType, currentHours, lastFetched, onSaved,
 }: {
-  name: string;
-  sourceType: "competitor" | "industry";
-  currentHours: number;
-  lastFetched: string | undefined;
-  onSaved: () => void;
+  name: string; sourceType: "competitor" | "industry"; currentHours: number;
+  lastFetched: string | undefined; onSaved: () => void;
 }) {
   const [selected, setSelected] = useState(currentHours);
   const [saving, setSaving] = useState(false);
@@ -109,116 +147,94 @@ function RefreshSelector({
 
 // ─── Competitor card ──────────────────────────────────────────────────────────
 function CompetitorCard({
-  source,
-  lastFetched,
-  onRemove,
-  onRefresh,
+  source, lastFetched, testResult, testing, onRemove, onToggle, onRefresh,
 }: {
-  source: CompetitorSource;
-  lastFetched: string | undefined;
-  onRemove: (name: string) => void;
+  source: CompetitorSource; lastFetched: string | undefined;
+  testResult: SourceTestResult | undefined; testing: boolean;
+  onRemove: (name: string) => void; onToggle: (name: string, enabled: boolean) => void;
   onRefresh: () => void;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const enabled = !source.disabled;
   const refreshHours = source.refresh_hours ?? 2;
 
   return (
-    <div className="bg-white border rounded-lg p-4 flex flex-col gap-1">
+    <div className={cn("bg-white border rounded-lg p-4 flex flex-col gap-1 transition-opacity", !enabled && "opacity-50")}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
+          <Toggle enabled={enabled} onChange={(v) => onToggle(source.name, v)} />
           <span className="font-semibold text-gray-900 text-sm">{source.name}</span>
           <span className="text-xs text-gray-400">{source.feeds.length} feed{source.feeds.length !== 1 ? "s" : ""}</span>
+          <TestBadge result={testResult} testing={testing} />
         </div>
         <div className="flex items-center gap-1">
-          <button
-            onClick={() => setExpanded((v) => !v)}
-            className="p-1 rounded text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition"
-          >
+          <button onClick={() => setExpanded((v) => !v)} className="p-1 rounded text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition">
             {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </button>
-          <button
-            onClick={() => onRemove(source.name)}
-            className="p-1 rounded text-gray-400 hover:text-red-600 hover:bg-red-50 transition"
-            title="Remove source"
-          >
+          <button onClick={() => onRemove(source.name)} className="p-1 rounded text-gray-400 hover:text-red-600 hover:bg-red-50 transition" title="Remove source">
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
       </div>
       {expanded && (
-        <div className="flex flex-col gap-1 pl-1 mt-1">
-          {source.feeds.map((f, i) => <FeedPill key={i} feed={f} />)}
+        <div className="flex flex-col gap-1.5 pl-1 mt-1">
+          {source.feeds.map((f, i) => (
+            <FeedPill key={i} feed={f} testResult={testResult?.feeds[i]} />
+          ))}
         </div>
       )}
-      <RefreshSelector
-        name={source.name}
-        sourceType="competitor"
-        currentHours={refreshHours}
-        lastFetched={lastFetched}
-        onSaved={onRefresh}
-      />
+      <RefreshSelector name={source.name} sourceType="competitor" currentHours={refreshHours} lastFetched={lastFetched} onSaved={onRefresh} />
     </div>
   );
 }
 
 // ─── Industry card ────────────────────────────────────────────────────────────
 function IndustryCard({
-  source,
-  lastFetched,
-  onRemove,
-  onRefresh,
+  source, lastFetched, testResult, testing, onRemove, onToggle, onRefresh,
 }: {
-  source: IndustrySource;
-  lastFetched: string | undefined;
-  onRemove: (name: string) => void;
+  source: IndustrySource; lastFetched: string | undefined;
+  testResult: SourceTestResult | undefined; testing: boolean;
+  onRemove: (name: string) => void; onToggle: (name: string, enabled: boolean) => void;
   onRefresh: () => void;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const enabled = !source.disabled;
   const refreshHours = source.refresh_hours ?? 24;
 
   return (
-    <div className="bg-white border rounded-lg p-4 flex flex-col gap-1">
+    <div className={cn("bg-white border rounded-lg p-4 flex flex-col gap-1 transition-opacity", !enabled && "opacity-50")}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 flex-wrap">
+          <Toggle enabled={enabled} onChange={(v) => onToggle(source.name, v)} />
           <span className="font-semibold text-gray-900 text-sm">{source.name}</span>
           <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">{source.category}</span>
           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${source.tier === 1 ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-500"}`}>
             Tier {source.tier}
           </span>
+          <TestBadge result={testResult} testing={testing} />
         </div>
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => setExpanded((v) => !v)}
-            className="p-1 rounded text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition"
-          >
+        <div className="flex items-center gap-1 shrink-0">
+          <button onClick={() => setExpanded((v) => !v)} className="p-1 rounded text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition">
             {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </button>
-          <button
-            onClick={() => onRemove(source.name)}
-            className="p-1 rounded text-gray-400 hover:text-red-600 hover:bg-red-50 transition"
-            title="Remove source"
-          >
+          <button onClick={() => onRemove(source.name)} className="p-1 rounded text-gray-400 hover:text-red-600 hover:bg-red-50 transition" title="Remove source">
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
       </div>
       {expanded && (
-        <div className="flex flex-col gap-1 pl-1 mt-1">
-          {source.feeds.map((f, i) => <FeedPill key={i} feed={f} />)}
+        <div className="flex flex-col gap-1.5 pl-1 mt-1">
+          {source.feeds.map((f, i) => (
+            <FeedPill key={i} feed={f} testResult={testResult?.feeds[i]} />
+          ))}
         </div>
       )}
-      <RefreshSelector
-        name={source.name}
-        sourceType="industry"
-        currentHours={refreshHours}
-        lastFetched={lastFetched}
-        onSaved={onRefresh}
-      />
+      <RefreshSelector name={source.name} sourceType="industry" currentHours={refreshHours} lastFetched={lastFetched} onSaved={onRefresh} />
     </div>
   );
 }
 
-// ─── Add competitor form ──────────────────────────────────────────────────────
+// ─── Add forms (unchanged) ────────────────────────────────────────────────────
 function AddCompetitorForm({ onAdd }: { onAdd: () => void }) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -246,7 +262,6 @@ function AddCompetitorForm({ onAdd }: { onAdd: () => void }) {
       </Button>
     );
   }
-
   return (
     <div className="border border-dashed border-gray-300 rounded-lg p-4 mt-2 bg-gray-50 space-y-2">
       <p className="text-xs font-semibold text-gray-600 uppercase">New Competitor Source</p>
@@ -261,7 +276,6 @@ function AddCompetitorForm({ onAdd }: { onAdd: () => void }) {
   );
 }
 
-// ─── Add industry form ────────────────────────────────────────────────────────
 function AddIndustryForm({ onAdd }: { onAdd: () => void }) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -291,7 +305,6 @@ function AddIndustryForm({ onAdd }: { onAdd: () => void }) {
       </Button>
     );
   }
-
   return (
     <div className="border border-dashed border-gray-300 rounded-lg p-4 mt-2 bg-gray-50 space-y-2">
       <p className="text-xs font-semibold text-gray-600 uppercase">New Industry Source</p>
@@ -327,6 +340,9 @@ export default function SourcesPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [paused, setPaused] = useState<boolean | null>(null);
   const [pauseLoading, setPauseLoading] = useState(false);
+  const [testResults, setTestResults] = useState<TestMap>({});
+  const [testing, setTesting] = useState(false);
+  const [testSummary, setTestSummary] = useState<{ ok: number; fail: number } | null>(null);
 
   useEffect(() => {
     fetch("/api/settings?key=ingestion_paused")
@@ -347,15 +363,12 @@ export default function SourcesPage() {
     setPauseLoading(false);
   }
 
-  function handleExport() {
-    window.location.href = "/api/sources/export";
-  }
+  function handleExport() { window.location.href = "/api/sources/export"; }
 
   async function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    setImporting(true);
-    setImportMsg(null);
+    setImporting(true); setImportMsg(null);
     const form = new FormData();
     form.append("file", file);
     const res = await fetch("/api/sources/import", { method: "POST", body: form });
@@ -367,7 +380,6 @@ export default function SourcesPage() {
     } else {
       setImportMsg({ text: data.error || "Import failed.", ok: false });
     }
-    // reset so the same file can be re-imported if needed
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
@@ -382,6 +394,15 @@ export default function SourcesPage() {
 
   useEffect(() => { fetchSources(); }, []);
 
+  async function toggleSource(sourceType: "competitor" | "industry", name: string, enabled: boolean) {
+    await fetch(`/api/sources/${encodeURIComponent(name)}?type=${sourceType}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ enabled }),
+    });
+    fetchSources();
+  }
+
   async function removeCompetitor(name: string) {
     if (!confirm(`Remove competitor "${name}"?`)) return;
     await fetch(`/api/sources/${encodeURIComponent(name)}?type=competitor`, { method: "DELETE" });
@@ -394,41 +415,74 @@ export default function SourcesPage() {
     fetchSources();
   }
 
+  async function runTests() {
+    setTesting(true);
+    setTestResults({});
+    setTestSummary(null);
+    try {
+      const res = await fetch("/api/sources/test");
+      const data = await res.json();
+      const results: TestMap = data.results ?? {};
+      setTestResults(results);
+      const entries = Object.values(results);
+      setTestSummary({ ok: entries.filter((r) => r.ok).length, fail: entries.filter((r) => !r.ok).length });
+    } catch {
+      setTestSummary({ ok: 0, fail: 0 });
+    }
+    setTesting(false);
+  }
+
+  const failingNames = Object.entries(testResults)
+    .filter(([, r]) => !r.ok)
+    .map(([name]) => name);
+
   return (
     <div>
       <div className="flex items-start justify-between gap-4 mb-1">
         <div>
           <h2 className="text-2xl font-bold">Sources</h2>
           <p className="text-sm text-gray-500 mt-1">
-            Manage RSS feeds and refresh schedules. The pipeline runs every 2 hours but only fetches sources that are due.
+            Manage RSS feeds and refresh schedules. Toggle sources on/off to include or exclude them from the pipeline.
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0 mt-1">
-          <Button variant="outline" size="sm" onClick={handleExport}>
-            <Download className="w-3 h-3 mr-1.5" /> Export CSV
-          </Button>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={importing}
+            onClick={runTests}
+            disabled={testing || loading}
           >
+            {testing
+              ? <><Loader2 className="w-3 h-3 mr-1.5 animate-spin" /> Testing…</>
+              : <><FlaskConical className="w-3 h-3 mr-1.5" /> Test All Sources</>
+            }
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleExport}>
+            <Download className="w-3 h-3 mr-1.5" /> Export CSV
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={importing}>
             <Upload className="w-3 h-3 mr-1.5" />
             {importing ? "Importing…" : "Import CSV"}
           </Button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".csv,text/csv"
-            className="hidden"
-            onChange={handleImport}
-          />
+          <input ref={fileInputRef} type="file" accept=".csv,text/csv" className="hidden" onChange={handleImport} />
         </div>
       </div>
+
       {importMsg && (
         <p className={`text-sm mt-2 mb-4 px-3 py-2 rounded-md border ${importMsg.ok ? "bg-green-50 text-green-700 border-green-200" : "bg-red-50 text-red-700 border-red-200"}`}>
           {importMsg.text}
         </p>
+      )}
+
+      {/* Test summary banner */}
+      {testSummary && (
+        <div className={`flex items-center gap-4 px-4 py-3 rounded-lg border mb-4 text-sm ${testSummary.fail > 0 ? "bg-red-50 border-red-200" : "bg-green-50 border-green-200"}`}>
+          <span className="font-medium text-gray-800">Test results:</span>
+          <span className="flex items-center gap-1 text-green-700"><CheckCircle2 className="w-4 h-4" /> {testSummary.ok} reachable</span>
+          {testSummary.fail > 0 && (
+            <span className="flex items-center gap-1 text-red-600"><XCircle className="w-4 h-4" /> {testSummary.fail} failing — {failingNames.slice(0, 5).join(", ")}{failingNames.length > 5 ? ` +${failingNames.length - 5} more` : ""}</span>
+          )}
+        </div>
       )}
 
       {/* Ingestion Pipeline toggle */}
@@ -436,11 +490,10 @@ export default function SourcesPage() {
         <div className="flex items-center justify-between px-4 py-3 rounded-lg border mb-6 bg-white">
           <div className="flex items-center gap-3">
             <span className="text-sm font-semibold text-gray-800">Ingestion Pipeline</span>
-            {paused ? (
-              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-700 border border-red-200">PAUSED</span>
-            ) : (
-              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700 border border-green-200">RUNNING</span>
-            )}
+            {paused
+              ? <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-700 border border-red-200">PAUSED</span>
+              : <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700 border border-green-200">RUNNING</span>
+            }
           </div>
           <Button
             size="sm"
@@ -470,6 +523,13 @@ export default function SourcesPage() {
             <h3 className="text-base font-semibold text-gray-800 mb-3">
               Competitor Sources
               <span className="ml-2 text-sm font-normal text-gray-400">{competitors.length}</span>
+              {testSummary && (
+                <span className="ml-2 text-xs font-normal text-red-500">
+                  {competitors.filter((s) => testResults[s.name] && !testResults[s.name].ok).length > 0
+                    ? `${competitors.filter((s) => testResults[s.name] && !testResults[s.name].ok).length} failing`
+                    : ""}
+                </span>
+              )}
             </h3>
             <div className="space-y-2">
               {competitors.map((src) => (
@@ -477,7 +537,10 @@ export default function SourcesPage() {
                   key={src.name}
                   source={src}
                   lastFetched={fetchLog[src.name]}
+                  testResult={testResults[src.name]}
+                  testing={testing}
                   onRemove={removeCompetitor}
+                  onToggle={(name, enabled) => toggleSource("competitor", name, enabled)}
                   onRefresh={fetchSources}
                 />
               ))}
@@ -490,6 +553,13 @@ export default function SourcesPage() {
             <h3 className="text-base font-semibold text-gray-800 mb-3">
               Industry Sources
               <span className="ml-2 text-sm font-normal text-gray-400">{industry.length}</span>
+              {testSummary && (
+                <span className="ml-2 text-xs font-normal text-red-500">
+                  {industry.filter((s) => testResults[s.name] && !testResults[s.name].ok).length > 0
+                    ? `${industry.filter((s) => testResults[s.name] && !testResults[s.name].ok).length} failing`
+                    : ""}
+                </span>
+              )}
             </h3>
             <div className="space-y-2">
               {industry.map((src) => (
@@ -497,7 +567,10 @@ export default function SourcesPage() {
                   key={src.name}
                   source={src}
                   lastFetched={fetchLog[src.name]}
+                  testResult={testResults[src.name]}
+                  testing={testing}
                   onRemove={removeIndustry}
+                  onToggle={(name, enabled) => toggleSource("industry", name, enabled)}
                   onRefresh={fetchSources}
                 />
               ))}

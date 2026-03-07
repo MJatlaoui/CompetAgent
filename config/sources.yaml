@@ -19,8 +19,11 @@ competitors:
 
   - name: NICE_CXone
     feeds:
-      - type: rss
-        url: https://www.nice.com/resources/blog/feed
+      - type: html
+        url: https://www.nice.com/blog/
+        selector: "h2 a, h3 a"
+        follow_links: true
+        title_selector: "h1"
 
   - name: Amazon_Connect
     feeds:
@@ -31,8 +34,11 @@ competitors:
 
   - name: Talkdesk
     feeds:
-      - type: rss
-        url: https://www.talkdesk.com/blog/feed/
+      - type: html
+        url: https://www.talkdesk.com/blog/
+        selector: "h2 a, h3 a"
+        follow_links: true
+        title_selector: "h1"
 
   - name: Salesforce_ServiceCloud
     feeds:
@@ -45,13 +51,19 @@ competitors:
 
   - name: Zendesk
     feeds:
-      - type: rss
-        url: https://www.zendesk.com/blog/feed/
+      - type: html
+        url: https://www.zendesk.com/blog/
+        selector: "h2 a, h3 a"
+        follow_links: true
+        title_selector: "h1"
 
   - name: Dialpad
     feeds:
-      - type: rss
-        url: https://www.dialpad.com/blog/feed/
+      - type: html
+        url: https://www.dialpad.com/blog/
+        selector: "h2 a, h3 a"
+        follow_links: true
+        title_selector: "h1"
 
   - name: 8x8
     feeds:
@@ -60,10 +72,14 @@ competitors:
 
   - name: Avaya
     feeds:
-      - type: rss
-        url: https://www.avaya.com/blogs/feed/
+      - type: html
+        url: https://www.avaya.com/blogs/
+        selector: "h2 a, h3 a"
+        follow_links: true
+        title_selector: "h1"
 
   - name: Freshworks
+    disabled: true
     feeds:
       - type: rss
         url: https://www.freshworks.com/freshdesk/blog/feed/
@@ -75,8 +91,11 @@ competitors:
 
   - name: LivePerson
     feeds:
-      - type: rss
-        url: https://www.liveperson.com/blog/feed/
+      - type: html
+        url: https://www.liveperson.com/blog/
+        selector: "h2 a, h3 a"
+        follow_links: true
+        title_selector: "h1"
 
   - name: Twilio
     feeds:
@@ -105,8 +124,11 @@ competitors:
 
   - name: Gladly
     feeds:
-      - type: rss
-        url: https://www.gladly.com/blog/feed/
+      - type: html
+        url: https://www.gladly.com/blog/
+        selector: "h2 a, h3 a"
+        follow_links: true
+        title_selector: "h1"
 
   - name: Front
     feeds:
@@ -115,8 +137,11 @@ competitors:
 
   - name: Qualtrics
     feeds:
-      - type: rss
-        url: https://www.qualtrics.com/blog/feed/
+      - type: html
+        url: https://www.qualtrics.com/blog/
+        selector: "h2 a, h3 a"
+        follow_links: true
+        title_selector: "h1"
 
   - name: Medallia
     feeds:
@@ -129,22 +154,25 @@ competitors:
         url: https://www.calabrio.com/blog/feed/
 
   - name: UJET
+    disabled: true
     feeds:
       - type: rss
         url: https://www.ujet.cx/blog/rss.xml
 
   - name: Kustomer
+    disabled: true
     feeds:
       - type: html
         url: https://www.kustomer.com/blog/
         selector: "h2 a, h3 a"
-        follow_links: true
-        title_selector: "h1"
 
   - name: Assembled
     feeds:
-      - type: rss
-        url: https://www.assembled.com/blog/rss/feed.xml
+      - type: html
+        url: https://www.assembled.com/blog
+        selector: "h2 a, h3 a"
+        follow_links: true
+        title_selector: "h1"
 
   - name: Cognigy
     feeds:
@@ -154,4 +182,4 @@ competitors:
   - name: Kore_AI
     feeds:
       - type: rss
-        url: https://blog.kore.ai/feed
+        url: https://blog.kore.ai/rss.xml

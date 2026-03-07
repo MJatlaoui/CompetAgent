@@ -89,12 +89,14 @@ def run():
                 "name": src["name"],
                 "feeds": src["feeds"],
                 "tier": src.get("tier", 2),
+                "refresh_hours": src.get("refresh_hours", 2),
+                "disabled": src.get("disabled", False),
             })
 
     threshold = strategy_cfg.get("score_threshold", 7)
 
     all_sources = sources_cfg["competitors"]
-    due_sources = [s for s in all_sources if _is_source_due(s)]
+    due_sources = [s for s in all_sources if not s.get("disabled", False) and _is_source_due(s)]
     skipped = len(all_sources) - len(due_sources)
     if skipped:
         print(f"[INFO] Skipping {skipped} source(s) not due for refresh")

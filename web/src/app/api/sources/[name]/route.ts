@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { removeCompetitorSource, removeIndustrySource, updateRefreshHours } from "@/lib/sources";
+import { removeCompetitorSource, removeIndustrySource, updateRefreshHours, toggleSourceEnabled } from "@/lib/sources";
 
 export async function DELETE(
   request: NextRequest,
@@ -40,11 +40,16 @@ export async function PATCH(
     if (!sourceType || !["competitor", "industry"].includes(sourceType)) {
       return NextResponse.json({ error: "type must be 'competitor' or 'industry'" }, { status: 400 });
     }
-    if (!Number.isFinite(refreshHours) || refreshHours < 0.25 || refreshHours > 72) {
+    if (body.refresh_hours !== undefined && (!Number.isFinite(refreshHours) || refreshHours < 0.25 || refreshHours > 72)) {
       return NextResponse.json({ error: "refresh_hours must be between 0.25 and 72" }, { status: 400 });
     }
 
-    updateRefreshHours(sourceType, decoded, refreshHours);
+    if (body.refresh_hours !== undefined) {
+      updateRefreshHours(sourceType, decoded, refreshHours);
+    }
+    if (body.enabled !== undefined) {
+      toggleSourceEnabled(sourceType, decoded, Boolean(body.enabled));
+    }
     return NextResponse.json({ ok: true });
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 500 });
