@@ -2,27 +2,77 @@
 
 import { useEffect, useState } from "react";
 import {
-  LineChart, Line, BarChart, Bar,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  AreaChart, Area, BarChart, Bar,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  ResponsiveContainer, Cell,
 } from "recharts";
 import type { TrendPoint } from "@/lib/types";
+import { CLASSIFICATION_LABELS } from "@/lib/classifications";
 
-const COLORS = ["#2563eb", "#dc2626", "#16a34a", "#ca8a04", "#9333ea", "#0891b2"];
+const COMPETITOR_COLORS = [
+  "#6366f1", "#f59e0b", "#10b981", "#ef4444",
+  "#3b82f6", "#8b5cf6", "#0891b2", "#f97316",
+];
+
+const CLASS_COLORS: Record<string, string> = {
+  FEATURE_LAUNCH:   "#8b5cf6",
+  TECHNICAL_SHIFT:  "#3b82f6",
+  PRICING_CHANGE:   "#10b981",
+  PARTNERSHIP:      "#0891b2",
+  MARKETING_NOISE:  "#94a3b8",
+  IRRELEVANT:       "#f87171",
+};
+
+function StatCard({
+  label, value, sub, color,
+}: {
+  label: string; value: string | number; sub?: string; color: string;
+}) {
+  return (
+    <div className={`rounded-xl border bg-white p-5 flex flex-col gap-1 shadow-sm`}>
+      <span className={`text-xs font-semibold uppercase tracking-wider ${color}`}>{label}</span>
+      <span className="text-3xl font-bold text-gray-900">{value}</span>
+      {sub && <span className="text-xs text-gray-400">{sub}</span>}
+    </div>
+  );
+}
+
+function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
+      <div className="px-5 py-3 border-b bg-gray-50">
+        <h3 className="text-sm font-semibold text-gray-700">{title}</h3>
+      </div>
+      <div className="p-5">{children}</div>
+    </div>
+  );
+}
+
+const dateLabel = (d: string) => {
+  if (!d) return "";
+  const dt = new Date(d + "T00:00:00");
+  return dt.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+};
 
 export default function DashboardPage() {
   const [trends, setTrends] = useState<TrendPoint[]>([]);
+  const [stats, setStats] = useState<any>(null);
 
   useEffect(() => {
-    fetch("/api/trends")
-      .then((r) => r.json())
-      .then((d) => setTrends(d.trends));
+    function load() {
+      fetch("/api/trends").then((r) => r.json()).then((d) => setTrends(d.trends));
+      fetch("/api/stats").then((r) => r.json()).then((d) => setStats(d));
+    }
+    load();
+    const timer = setInterval(load, 120_000);
+    return () => clearInterval(timer);
   }, []);
 
   const competitors = [...new Set(trends.map((t) => t.competitor))];
   const dates = [...new Set(trends.map((t) => t.date))].sort();
 
-  const lineData = dates.map((date) => {
-    const point: Record<string, any> = { date };
+  const areaData = dates.map((date) => {
+    const point: Record<string, any> = { date, label: dateLabel(date) };
     competitors.forEach((comp) => {
       point[comp] = trends
         .filter((t) => t.date === date && t.competitor === comp)
@@ -31,55 +81,136 @@ export default function DashboardPage() {
     return point;
   });
 
-  const classificationMap: Record<string, number> = {};
+  const classMap: Record<string, number> = {};
   trends.forEach((t) => {
-    classificationMap[t.classification] = (classificationMap[t.classification] || 0) + t.count;
+    classMap[t.classification] = (classMap[t.classification] || 0) + t.count;
   });
-  const barData = Object.entries(classificationMap).map(([name, count]) => ({ name, count }));
+  const classData = Object.entries(classMap)
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count);
+
+  if (!stats && trends.length === 0) {
+    return <p className="text-gray-400 text-sm mt-8">No data yet. Run an ingestion cycle first.</p>;
+  }
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold text-gray-900">Dashboard</h2>
 
-      {trends.length === 0 ? (
-        <p className="text-gray-500">No data yet. Run an ingestion cycle first.</p>
-      ) : (
-        <>
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold mb-2">Insights Over Time by Competitor</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={lineData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
+      {/* Stat cards */}
+      {stats && (
+        <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
+          <StatCard label="Total Insights" value={stats.total} color="text-gray-500" />
+          <StatCard label="Pending" value={stats.pending} sub="awaiting review" color="text-blue-500" />
+          <StatCard label="Approved" value={stats.approved} sub="in bulletin" color="text-green-600" />
+          <StatCard label="For Review" value={stats.review} sub="flagged" color="text-amber-500" />
+          <StatCard label="Avg Score" value={stats.avgScore} sub="out of 10" color="text-purple-500" />
+          <StatCard label="API Spend" value={`$${(stats.totalCostUsd ?? 0).toFixed(4)}`} sub="total cost" color="text-rose-500" />
+        </div>
+      )}
+
+      {/* Activity over time */}
+      {areaData.length > 0 && (
+        <SectionCard title="Insights Over Time by Source">
+          <ResponsiveContainer width="100%" height={260}>
+            <AreaChart data={areaData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
+              <defs>
                 {competitors.map((comp, i) => (
-                  <Line
-                    key={comp}
-                    type="monotone"
-                    dataKey={comp}
-                    stroke={COLORS[i % COLORS.length]}
-                  />
+                  <linearGradient key={comp} id={`g${i}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={COMPETITOR_COLORS[i % COMPETITOR_COLORS.length]} stopOpacity={0.15} />
+                    <stop offset="95%" stopColor={COMPETITOR_COLORS[i % COMPETITOR_COLORS.length]} stopOpacity={0} />
+                  </linearGradient>
                 ))}
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis dataKey="label" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
+              <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} allowDecimals={false} />
+              <Tooltip
+                contentStyle={{ borderRadius: 8, border: "1px solid #e5e7eb", fontSize: 12 }}
+                labelFormatter={(l) => l}
+              />
+              <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8 }} />
+              {competitors.map((comp, i) => (
+                <Area
+                  key={comp}
+                  type="monotone"
+                  dataKey={comp}
+                  stroke={COMPETITOR_COLORS[i % COMPETITOR_COLORS.length]}
+                  fill={`url(#g${i})`}
+                  strokeWidth={2}
+                  dot={false}
+                  activeDot={{ r: 4 }}
+                />
+              ))}
+            </AreaChart>
+          </ResponsiveContainer>
+        </SectionCard>
+      )}
 
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold mb-2">Classification Distribution</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={barData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="count" fill="#2563eb" />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Classification distribution */}
+        {classData.length > 0 && (
+          <SectionCard title="Classification Breakdown">
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={classData} layout="vertical" margin={{ left: 8, right: 24 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
+                <XAxis type="number" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} allowDecimals={false} />
+                <YAxis
+                  type="category"
+                  dataKey="name"
+                  tick={{ fontSize: 10 }}
+                  tickLine={false}
+                  axisLine={false}
+                  width={120}
+                  tickFormatter={(v: string) => CLASSIFICATION_LABELS[v] ?? v.replace(/_/g, " ")}
+                />
+                <Tooltip
+                  contentStyle={{ borderRadius: 8, border: "1px solid #e5e7eb", fontSize: 12 }}
+                  formatter={(v) => [v, "items"]}
+                />
+                <Bar dataKey="count" radius={[0, 4, 4, 0]}>
+                  {classData.map((entry) => (
+                    <Cell
+                      key={entry.name}
+                      fill={CLASS_COLORS[entry.name] || "#94a3b8"}
+                    />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
-          </div>
-        </>
-      )}
+          </SectionCard>
+        )}
+
+        {/* Top competitors */}
+        {stats?.topCompetitors?.length > 0 && (
+          <SectionCard title="Top Sources by Volume">
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart
+                data={stats.topCompetitors}
+                layout="vertical"
+                margin={{ left: 8, right: 24 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
+                <XAxis type="number" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} allowDecimals={false} />
+                <YAxis
+                  type="category"
+                  dataKey="competitor"
+                  tick={{ fontSize: 11 }}
+                  tickLine={false}
+                  axisLine={false}
+                  width={110}
+                  tickFormatter={(v: string) => v.replace(/_/g, " ")}
+                />
+                <Tooltip
+                  contentStyle={{ borderRadius: 8, border: "1px solid #e5e7eb", fontSize: 12 }}
+                  formatter={(v) => [v, "insights"]}
+                />
+                <Bar dataKey="count" fill="#6366f1" radius={[0, 4, 4, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </SectionCard>
+        )}
+      </div>
     </div>
   );
 }

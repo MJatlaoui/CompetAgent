@@ -14,7 +14,7 @@ MOCK_ITEM = {
     "competitor": "Five9",
     "title": "Five9 Launches Feature",
     "url": "https://five9.com/blog/feature",
-    "summary": "Details about the feature.",
+    "summary": "Details about the contact center feature.",
     "published": "2026-03-04",
 }
 
@@ -50,7 +50,7 @@ def test_run_posts_high_score_items_to_slack(tmp_path, monkeypatch):
          patch("builtins.open"), \
          patch("src.main.Path.exists", return_value=False), \
          patch("src.main.load_sources", return_value=[MOCK_ITEM]), \
-         patch("src.main.analyze_item", return_value=HIGH_SCORE_INSIGHT), \
+         patch("src.main.analyze_batch", return_value=[(HIGH_SCORE_INSIGHT, 0.001)]), \
          patch("src.main.save_pending", return_value="fake-uuid") as mock_save:
 
         from src.main import run
@@ -67,7 +67,7 @@ def test_run_skips_low_score_items(tmp_path, monkeypatch):
          patch("builtins.open"), \
          patch("src.main.Path.exists", return_value=False), \
          patch("src.main.load_sources", return_value=[MOCK_ITEM]), \
-         patch("src.main.analyze_item", return_value=LOW_SCORE_INSIGHT), \
+         patch("src.main.analyze_batch", return_value=[(LOW_SCORE_INSIGHT, 0.001)]), \
          patch("src.main.save_pending") as mock_save:
 
         from src.main import run
@@ -86,12 +86,25 @@ def test_run_skips_already_seen_items(tmp_path, monkeypatch):
          patch("builtins.open"), \
          patch("src.main.Path.exists", return_value=False), \
          patch("src.main.load_sources", return_value=[MOCK_ITEM]), \
-         patch("src.main.analyze_item") as mock_analyze:
+         patch("src.main.analyze_batch") as mock_analyze:
 
         from src.main import run
         run()
 
     mock_analyze.assert_not_called()
+
+
+def test_run_exits_early_when_paused(tmp_path, monkeypatch):
+    import src.database as db_mod
+    monkeypatch.setattr(db_mod, "DB_PATH", tmp_path / "test.db")
+    db_mod.init_db()
+    db_mod.set_setting("ingestion_paused", "true")
+
+    with patch("src.main.load_sources") as mock_load:
+        from src.main import run
+        run()
+
+    mock_load.assert_not_called()
 
 
 def test_run_includes_industry_sources_when_file_exists(tmp_path, monkeypatch):
@@ -123,7 +136,7 @@ def test_run_includes_industry_sources_when_file_exists(tmp_path, monkeypatch):
          patch("builtins.open"), \
          patch("src.main.INDUSTRY_SOURCES_PATH", str(industry_yaml)), \
          patch("src.main.load_sources") as mock_load, \
-         patch("src.main.analyze_item", return_value=None):
+         patch("src.main.analyze_batch", return_value=[]):
         mock_load.return_value = []
         from src.main import run
         run()

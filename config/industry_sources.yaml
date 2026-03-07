@@ -1,171 +1,265 @@
 industry_sources:
 - category: CX / CCaaS News
+  tier: 1
   feeds:
   - type: rss
     url: https://www.cxtoday.com/feed/
   name: CX Today
 - category: CCaaS / UCaaS
+  tier: 1
   feeds:
   - type: rss
     url: https://www.nojitter.com/rss.xml
   name: No Jitter
 - category: Contact Center Ops
+  tier: 1
   feeds:
   - type: rss
     url: https://www.contactcenterpipeline.com/feed
   name: Contact Center Pipeline
 - category: Contact Center Ops
+  tier: 1
   feeds:
   - type: rss
     url: https://www.callcentrehelper.com/feed
   name: Call Centre Helper
 - category: MarTech / CX Adjacent
+  tier: 2
   feeds:
   - type: rss
     url: https://martech.org/feed/
   name: MarTech
 - category: MarTech / CX Adjacent
+  tier: 2
   feeds:
   - type: rss
     url: https://www.martechseries.com/feed/
   name: MarTech Series
 - category: CX
+  tier: 1
   feeds:
   - type: rss
     url: https://www.cxnetwork.com/rss/articles
   name: CX Network
 - category: UCaaS / CCaaS
+  tier: 1
   feeds:
   - type: rss
     url: https://www.uctoday.com/feed/
   name: UC Today
 - category: AI News
+  tier: 2
   feeds:
   - type: rss
     url: https://venturebeat.com/category/ai/feed/
   name: VentureBeat AI
 - category: AI / Startups
+  tier: 2
   feeds:
   - type: rss
     url: https://techcrunch.com/category/artificial-intelligence/feed/
   name: TechCrunch AI
 - category: AI / Enterprise Tech
+  tier: 2
   feeds:
   - type: rss
     url: https://www.zdnet.com/topic/artificial-intelligence/rss.xml
   name: ZDNET AI
 - category: AI / Tech
+  tier: 2
   feeds:
   - type: rss
     url: https://feeds.arstechnica.com/arstechnica/technology-lab
   name: Ars Technica
 - category: AI / Enterprise IT
+  tier: 2
   feeds:
   - type: rss
     url: https://www.theregister.com/headlines.atom
   name: The Register
 - category: Tech / AI
+  tier: 2
   feeds:
   - type: rss
     url: https://www.wired.com/feed/category/business/latest/rss
   name: Wired Business
 - category: AI
+  tier: 2
   feeds:
   - type: rss
     url: https://www.technologyreview.com/feed/
   name: MIT Tech Review AI
 - category: AI / Engineering
+  tier: 2
   feeds:
   - type: rss
     url: https://spectrum.ieee.org/feeds/feed.rss
   name: IEEE Spectrum
 - category: AI
+  tier: 2
   feeds:
   - type: rss
     url: https://blog.google/technology/ai/rss/
   name: Google AI Blog
 - category: AI
+  tier: 2
   feeds:
   - type: rss
     url: https://blogs.microsoft.com/ai/feed/
   name: Microsoft AI Blog
 - category: CRM
+  tier: 1
   feeds:
   - type: rss
     url: https://cloudblogs.microsoft.com/dynamics365/feed/
   name: Microsoft Dynamics 365
 - category: CRM
+  tier: 1
   feeds:
   - type: rss
     url: https://www.salesforce.com/blog/feed/
   name: Salesforce Blog
 - category: CRM / Service
+  tier: 1
   feeds:
   - type: rss
     url: https://www.salesforce.com/blog/category/service/feed/
   name: Salesforce Service Cloud
 - category: CRM
+  tier: 2
   feeds:
   - type: rss
     url: https://www.zoho.com/blog/feed/
   name: Zoho Blog
 - category: CRM
+  tier: 2
   feeds:
   - type: rss
     url: https://www.sugarcrm.com/blog/feed/
   name: SugarCRM Blog
 - category: eCom Support
+  tier: 2
   feeds:
   - type: rss
     url: https://www.gorgias.com/blog/rss.xml
   name: Gorgias Blog
 - category: CCaaS
+  tier: 1
   feeds:
   - type: rss
     url: https://www.genesys.com/blog/rss
   name: Genesys Blog
 - category: UCaaS / CCaaS
+  tier: 1
   feeds:
   - type: rss
     url: https://www.ringcentral.com/us/en/blog/feed/
   name: RingCentral Blog
 - category: UCaaS / CCaaS
+  tier: 1
   feeds:
   - type: rss
     url: https://blog.webex.com/feed/
   name: Cisco Webex Blog
 - category: CPaaS
+  tier: 2
   feeds:
   - type: rss
     url: https://sinch.com/blog/feed/
   name: Sinch Blog
 - category: CCaaS
+  tier: 1
   feeds:
   - type: rss
     url: https://aws.amazon.com/blogs/contact-center/feed/
   name: Amazon Connect Blog
 - category: Cloud AI
+  tier: 2
   feeds:
   - type: rss
     url: https://cloudblog.withgoogle.com/products/ai-machine-learning/rss/
   name: Google Cloud AI Blog
 - category: Cloud AI
+  tier: 2
   feeds:
   - type: rss
     url: https://azure.microsoft.com/en-us/blog/feed/
   name: Microsoft Azure Blog
 - category: Security / Perf
+  tier: 2
   feeds:
   - type: rss
     url: https://blog.cloudflare.com/rss/
   name: Cloudflare Blog
 - category: UX
+  tier: 2
   feeds:
   - type: rss
     url: https://www.nngroup.com/feed/rss/
   name: Nielsen Norman Group
 - category: Research
+  tier: 1
   feeds:
   - type: rss
     url: https://go.forrester.com/blogs/feed/
   name: Forrester Blogs
+- category: CX / CCaaS News
+  tier: 1
+  feeds:
+  - type: rss
+    url: https://customerthink.com/feed/
+  name: CustomerThink
+- category: CRM / CCaaS
+  tier: 1
+  feeds:
+  - type: rss
+    url: https://www.destinationcrm.com/rss/Articles.aspx
+  name: Destination CRM
+- category: Contact Center Ops
+  tier: 1
+  feeds:
+  - type: rss
+    url: https://www.icmi.com/resources/rss
+  name: ICMI
+- category: CCaaS / Telecom
+  tier: 1
+  feeds:
+  - type: rss
+    url: https://www.tmcnet.com/rss/tmcnet.aspx
+  name: TMCnet
+- category: Research
+  tier: 1
+  feeds:
+  - type: rss
+    url: https://metrigy.com/feed/
+  name: Metrigy
+- category: Research
+  tier: 1
+  feeds:
+  - type: rss
+    url: https://opusresearch.net/wordpress/feed/
+  name: Opus Research
+- category: CCaaS / VoIP
+  tier: 2
+  feeds:
+  - type: rss
+    url: https://getvoip.com/blog/feed/
+  name: GetVoIP
+- category: AI
+  tier: 2
+  feeds:
+  - type: rss
+    url: https://openai.com/blog/rss.xml
+  name: OpenAI Blog
+- category: AI / Open Source
+  tier: 2
+  feeds:
+  - type: rss
+    url: https://huggingface.co/blog/feed.xml
+  name: Hugging Face Blog
+- category: Cloud AI
+  tier: 2
+  feeds:
+  - type: rss
+    url: https://aws.amazon.com/blogs/machine-learning/feed/
+  name: AWS Machine Learning Blog

@@ -5,6 +5,12 @@ competitors:
         url: https://www.genesys.com/blog/feed
       - type: rss
         url: https://developer.genesys.cloud/blog/feed.xml
+      - type: html
+        url: https://help.genesys.cloud/release-notes/genesys-cloud/
+        selector: "a[href*='/release-notes/genesys-cloud/'][href*='-2026']"
+        base_url: "https://help.genesys.cloud"
+        follow_links: true
+        title_selector: "h1"
 
   - name: Five9
     feeds:
@@ -36,3 +42,53 @@ competitors:
         url: https://help.salesforce.com/s/articleView?id=release-notes.salesforce_release_notes.htm
         selector: "h2.slds-text-heading_medium"
         base_url: "https://help.salesforce.com"
+
+  - name: Zendesk
+    feeds:
+      - type: rss
+        url: https://www.zendesk.com/blog/feed/
+
+  - name: Dialpad
+    feeds:
+      - type: rss
+        url: https://www.dialpad.com/blog/feed/
+
+  - name: 8x8
+    feeds:
+      - type: rss
+        url: https://www.8x8.com/blog/feed
+
+  - name: Avaya
+    feeds:
+      - type: rss
+        url: https://www.avaya.com/blogs/feed/
+
+  - name: Freshworks
+    feeds:
+      - type: rss
+        url: https://www.freshworks.com/freshdesk/blog/feed/
+
+  - name: ServiceNow
+    feeds:
+      - type: rss
+        url: https://blogs.servicenow.com/feed
+
+  - name: LivePerson
+    feeds:
+      - type: rss
+        url: https://www.liveperson.com/blog/feed/
+
+  - name: Twilio
+    feeds:
+      - type: rss
+        url: https://www.twilio.com/blog/feed
+
+  - name: Sprinklr
+    feeds:
+      - type: rss
+        url: https://www.sprinklr.com/blog/feed/
+
+  - name: Verint
+    feeds:
+      - type: rss
+        url: https://www.verint.com/blog/feed/

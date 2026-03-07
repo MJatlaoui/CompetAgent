@@ -15,6 +15,7 @@ def load_sources(config: dict) -> list[dict]:
     all_items: list[dict] = []
     for comp in config["competitors"]:
         name = comp["name"]
+        tier = comp.get("tier", 1)
         for feed in comp["feeds"]:
             feed_type = feed["type"]
             adapter = ADAPTERS.get(feed_type)
@@ -22,5 +23,8 @@ def load_sources(config: dict) -> list[dict]:
                 print(f"[WARN] Unknown source type: {feed_type} — skipping")
                 continue
             extra = {k: v for k, v in feed.items() if k not in ("type", "url")}
-            all_items.extend(adapter.fetch(feed["url"], name, **extra))
+            items = adapter.fetch(feed["url"], name, **extra)
+            for item in items:
+                item["tier"] = tier
+            all_items.extend(items)
     return all_items

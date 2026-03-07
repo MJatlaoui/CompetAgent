@@ -17,14 +17,20 @@ SAMPLE_INSIGHT = {
 }
 
 
-def test_analyze_item_returns_parsed_insight():
-    from src.intelligence import analyze_item
-
+def _make_mock_response(text: str, usage=None):
     mock_content = MagicMock()
-    mock_content.text = json.dumps(SAMPLE_INSIGHT)
-
+    mock_content.text = text
     mock_response = MagicMock()
     mock_response.content = [mock_content]
+    mock_response.usage = usage or MagicMock(
+        input_tokens=100, output_tokens=50,
+        cache_creation_input_tokens=0, cache_read_input_tokens=0,
+    )
+    return mock_response
+
+
+def test_analyze_item_returns_parsed_insight():
+    from src.intelligence import analyze_item
 
     item = {
         "competitor": "Five9",
@@ -34,13 +40,15 @@ def test_analyze_item_returns_parsed_insight():
         "published": "2026-03-04",
     }
 
-    with patch("src.intelligence.client.messages.create", return_value=mock_response):
-        result = analyze_item(item)
+    with patch("src.intelligence.client.messages.create",
+               return_value=_make_mock_response(json.dumps(SAMPLE_INSIGHT))):
+        insight, cost = analyze_item(item)
 
-    assert result is not None
-    assert result["score"] == 8
-    assert result["competitor"] == "Five9"
-    assert result["worth_surfacing"] is True
+    assert insight is not None
+    assert insight["score"] == 8
+    assert insight["competitor"] == "Five9"
+    assert insight["worth_surfacing"] is True
+    assert isinstance(cost, float)
 
 
 def test_analyze_item_returns_none_on_api_error():
@@ -55,19 +63,14 @@ def test_analyze_item_returns_none_on_api_error():
     }
 
     with patch("src.intelligence.client.messages.create", side_effect=Exception("API error")):
-        result = analyze_item(item)
+        insight, cost = analyze_item(item)
 
-    assert result is None
+    assert insight is None
+    assert cost == 0.0
 
 
 def test_analyze_item_returns_none_on_invalid_json():
     from src.intelligence import analyze_item
-
-    mock_content = MagicMock()
-    mock_content.text = "not valid json {{"
-
-    mock_response = MagicMock()
-    mock_response.content = [mock_content]
 
     item = {
         "competitor": "Talkdesk",
@@ -77,7 +80,9 @@ def test_analyze_item_returns_none_on_invalid_json():
         "published": "2026-03-04",
     }
 
-    with patch("src.intelligence.client.messages.create", return_value=mock_response):
-        result = analyze_item(item)
+    with patch("src.intelligence.client.messages.create",
+               return_value=_make_mock_response("not valid json {{")):
+        insight, cost = analyze_item(item)
 
-    assert result is None
+    assert insight is None
+    assert cost == 0.0

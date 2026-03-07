@@ -1,3 +1,11 @@
+export interface SubScores {
+  f: number;
+  n: number;
+  a: number;
+  d: number;
+  s: number;
+}
+
 export interface Insight {
   id: string;
   itemId: string;
@@ -12,8 +20,13 @@ export interface Insight {
   sourceUrl: string;
   worthSurfacing: boolean;
   postedAt: string;
-  status: "pending" | "approved" | "review" | "discarded";
+  status: "pending" | "approved" | "review" | "discarded" | "seen" | "saved_offline";
   tags: string[];
+  subScores?: SubScores;
+  heat?: number;
+  heatDelta?: number;
+  sourceType?: "primary" | "secondary";
+  costUsd?: number;
 }
 
 export interface TrendPoint {
@@ -24,3 +37,19 @@ export interface TrendPoint {
 }
 
 export type InsightStatus = Insight["status"];
+
+export interface MetricsData {
+  total: number;
+  analyses: number;
+  today: number;
+  saved: number;
+  totalCostUsd: number;
+}
+
+export interface SeenItem {
+  id: string;
+  title: string;
+  url: string;
+  competitor: string;
+  seenAt: string;
+}

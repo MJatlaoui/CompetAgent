@@ -1,5 +1,5 @@
 import { google } from "googleapis";
-import type { Insight } from "./types";
+import type { Insight, SeenItem } from "./types";
 
 const HEADERS = [
   "Headline", "Competitor", "Type", "Score", "Source URL",
@@ -58,4 +58,54 @@ export async function writeToSheet(insight: Insight): Promise<void> {
   });
 
   console.log(`[OK] Written to Google Sheet: ${insight.headline}`);
+}
+
+export async function writeIngestedTab(items: SeenItem[]): Promise<void> {
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  if (!sheetId) {
+    console.warn("[WARN] GOOGLE_SHEET_ID not set, skipping Sheets write");
+    return;
+  }
+
+  const auth = getAuth();
+  const sheets = google.sheets({ version: "v4", auth });
+
+  // Get existing sheet metadata to find or create the "Ingested" tab
+  const meta = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
+  const existingSheet = meta.data.sheets?.find(
+    (s) => s.properties?.title === "Ingested"
+  );
+
+  if (existingSheet) {
+    // Clear existing content
+    await sheets.spreadsheets.values.clear({
+      spreadsheetId: sheetId,
+      range: "Ingested",
+    });
+  } else {
+    // Create the tab
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: sheetId,
+      requestBody: {
+        requests: [{ addSheet: { properties: { title: "Ingested" } } }],
+      },
+    });
+  }
+
+  const headers = ["Title", "Competitor", "URL", "Seen At"];
+  const rows = items.map((item) => [
+    item.title,
+    item.competitor,
+    item.url,
+    item.seenAt,
+  ]);
+
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: sheetId,
+    range: "Ingested!A1",
+    valueInputOption: "RAW",
+    requestBody: { values: [headers, ...rows] },
+  });
+
+  console.log(`[OK] Written ${items.length} ingested items to 'Ingested' tab`);
 }

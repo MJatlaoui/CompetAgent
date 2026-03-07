@@ -96,3 +96,24 @@ def test_get_trends():
     save_pending("item_2", {"score": 9, "competitor": "Five9", "classification": "TECHNICAL_SHIFT"})
     trends = get_trends()
     assert len(trends) >= 1
+
+
+def test_get_setting_returns_none_when_not_set():
+    from src.database import init_db, get_setting
+    init_db()
+    assert get_setting("ingestion_paused") is None
+
+
+def test_set_and_get_setting():
+    from src.database import init_db, get_setting, set_setting
+    init_db()
+    set_setting("ingestion_paused", "true")
+    assert get_setting("ingestion_paused") == "true"
+
+
+def test_set_setting_overwrites():
+    from src.database import init_db, get_setting, set_setting
+    init_db()
+    set_setting("ingestion_paused", "true")
+    set_setting("ingestion_paused", "false")
+    assert get_setting("ingestion_paused") == "false"
