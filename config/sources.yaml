@@ -92,3 +92,66 @@ competitors:
     feeds:
       - type: rss
         url: https://www.verint.com/blog/feed/
+
+  - name: Vonage
+    feeds:
+      - type: rss
+        url: https://www.vonage.com/resources/articles/feed/
+
+  - name: Intercom
+    feeds:
+      - type: rss
+        url: https://www.intercom.com/blog/feed
+
+  - name: Gladly
+    feeds:
+      - type: rss
+        url: https://www.gladly.com/blog/feed/
+
+  - name: Front
+    feeds:
+      - type: rss
+        url: https://front.com/blog/feed
+
+  - name: Qualtrics
+    feeds:
+      - type: rss
+        url: https://www.qualtrics.com/blog/feed/
+
+  - name: Medallia
+    feeds:
+      - type: rss
+        url: https://www.medallia.com/blog/feed/
+
+  - name: Calabrio
+    feeds:
+      - type: rss
+        url: https://www.calabrio.com/blog/feed/
+
+  - name: UJET
+    feeds:
+      - type: rss
+        url: https://www.ujet.cx/blog/rss.xml
+
+  - name: Kustomer
+    feeds:
+      - type: html
+        url: https://www.kustomer.com/blog/
+        selector: "h2 a, h3 a"
+        follow_links: true
+        title_selector: "h1"
+
+  - name: Assembled
+    feeds:
+      - type: rss
+        url: https://www.assembled.com/blog/rss/feed.xml
+
+  - name: Cognigy
+    feeds:
+      - type: rss
+        url: https://www.cognigy.com/blog/rss.xml
+
+  - name: Kore_AI
+    feeds:
+      - type: rss
+        url: https://blog.kore.ai/feed
