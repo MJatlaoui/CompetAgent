@@ -7,6 +7,7 @@ import { InsightCard } from "@/components/InsightCard";
 import { FilterBar, dateRangeToParam } from "@/components/FilterBar";
 import type { FilterState } from "@/components/FilterBar";
 import type { Insight } from "@/lib/types";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
 const LIMIT = 20;
 
@@ -21,6 +22,9 @@ export default function ReviewPage() {
   const [bulkLoading, setBulkLoading] = useState(false);
   const [archivingAll, setArchivingAll] = useState(false);
   const [sheetsErrors, setSheetsErrors] = useState<string[]>([]);
+  const [focusedIndex, setFocusedIndex] = useState(0);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
 
   function buildParams(off = offset) {
     const p = new URLSearchParams({ view: "pending", limit: String(LIMIT), offset: String(off) });
@@ -55,6 +59,9 @@ export default function ReviewPage() {
       setCompetitors((data.topCompetitors || []).map((c: { competitor: string }) => c.competitor));
     });
   }, []);
+
+  // Reset focusedIndex when insights change
+  useEffect(() => { setFocusedIndex(0); }, [insights]);
 
   function handleSearch() { setOffset(0); fetch_(0); }
 
@@ -132,6 +139,27 @@ export default function ReviewPage() {
 
   function goTo(off: number) { setOffset(off); fetch_(off); }
 
+  function handleToggleExpand(id: string) {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  useKeyboardShortcuts({
+    insights,
+    focusedIndex,
+    setFocusedIndex,
+    onApprove: (id) => handleStatusChange(id, "approved"),
+    onDiscard: (id) => handleStatusChange(id, "discarded"),
+    onFlag: (id) => handleStatusChange(id, "review"),
+    onToggleExpand: handleToggleExpand,
+    onShowHelp: () => setShowShortcutsHelp(true),
+    expandedIds,
+  });
+
   const allSelected = insights.length > 0 && selectedIds.size === insights.length;
   const someSelected = selectedIds.size > 0;
 
@@ -151,12 +179,21 @@ export default function ReviewPage() {
         </div>
       )}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold">
-          Inbox
-          {!loading && total > 0 && (
-            <span className="text-sm font-normal text-gray-500 ml-2">({total} pending)</span>
-          )}
-        </h2>
+        <div className="flex items-center gap-3">
+          <h2 className="text-2xl font-bold">
+            Inbox
+            {!loading && total > 0 && (
+              <span className="text-sm font-normal text-gray-500 ml-2">({total} pending)</span>
+            )}
+          </h2>
+          <button
+            onClick={() => setShowShortcutsHelp(true)}
+            className="text-xs text-gray-400 hover:text-gray-600 border rounded px-2 py-0.5"
+            title="Keyboard shortcuts"
+          >
+            ? shortcuts
+          </button>
+        </div>
         {!loading && total > 0 && (
           <Button
             variant="outline"
@@ -242,7 +279,7 @@ export default function ReviewPage() {
         </div>
       ) : (
         <>
-          {insights.map((insight) => (
+          {insights.map((insight, idx) => (
             <InsightCard
               key={insight.id}
               insight={insight}
@@ -250,6 +287,8 @@ export default function ReviewPage() {
               onTagsChange={handleTagsChange}
               selected={selectedIds.has(insight.id)}
               onSelect={handleSelect}
+              focused={focusedIndex === idx}
+              forceExpanded={expandedIds.has(insight.id)}
             />
           ))}
           {total > LIMIT && (
@@ -260,6 +299,36 @@ export default function ReviewPage() {
             </div>
           )}
         </>
+      )}
+
+      {showShortcutsHelp && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowShortcutsHelp(false)}>
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <h3 className="font-bold text-lg mb-4">Keyboard Shortcuts</h3>
+            <div className="space-y-2 text-sm">
+              {[
+                ["j", "Next card"],
+                ["k", "Previous card"],
+                ["a", "Approve focused card"],
+                ["d", "Discard/archive focused card"],
+                ["f", "Flag for review"],
+                ["e / Space", "Expand/collapse card"],
+                ["?", "Show this help"],
+              ].map(([key, desc]) => (
+                <div key={key} className="flex justify-between">
+                  <kbd className="px-2 py-0.5 bg-gray-100 rounded text-xs font-mono">{key}</kbd>
+                  <span className="text-gray-600">{desc}</span>
+                </div>
+              ))}
+            </div>
+            <button
+              className="mt-4 w-full text-sm text-gray-500 hover:text-gray-700"
+              onClick={() => setShowShortcutsHelp(false)}
+            >
+              Close (click anywhere)
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
