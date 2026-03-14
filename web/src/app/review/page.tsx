@@ -15,7 +15,8 @@ export default function ReviewPage() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [offset, setOffset] = useState(0);
-  const [filters, setFilters] = useState<FilterState>({ search: "", dateRange: "all", classification: "" });
+  const [filters, setFilters] = useState<FilterState>({ search: "", dateRange: "all", classification: "", competitor: undefined });
+  const [competitors, setCompetitors] = useState<string[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkLoading, setBulkLoading] = useState(false);
   const [archivingAll, setArchivingAll] = useState(false);
@@ -24,6 +25,7 @@ export default function ReviewPage() {
     const p = new URLSearchParams({ view: "pending", limit: String(LIMIT), offset: String(off) });
     if (filters.search) p.set("search", filters.search);
     if (filters.classification) p.set("classification", filters.classification);
+    if (filters.competitor) p.set("competitor", filters.competitor);
     const { from, to } = dateRangeToParam(filters.dateRange);
     if (from) p.set("from", from);
     if (to) p.set("to", to);
@@ -45,6 +47,12 @@ export default function ReviewPage() {
     setOffset(0);
     const timer = setInterval(() => fetch_(0), 60_000);
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/stats").then(r => r.json()).then(data => {
+      setCompetitors((data.topCompetitors || []).map((c: { competitor: string }) => c.competitor));
+    });
   }, []);
 
   function handleSearch() { setOffset(0); fetch_(0); }
@@ -143,7 +151,7 @@ export default function ReviewPage() {
         )}
       </div>
 
-      <FilterBar value={filters} onChange={setFilters} onSearch={handleSearch} />
+      <FilterBar value={filters} onChange={setFilters} onSearch={handleSearch} competitors={competitors} />
 
       {/* Bulk action bar */}
       {!loading && insights.length > 0 && (

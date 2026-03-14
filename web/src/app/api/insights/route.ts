@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
   const offset = parseInt(searchParams.get("offset") || "0");
 
   if (view === "pending") {
-    const result = getAllInsights({ status: "pending", search, classification, from, to, limit, offset });
+    const result = getAllInsights({ status: "pending", competitor, search, classification, from, to, limit, offset });
     return NextResponse.json(result);
   }
 
