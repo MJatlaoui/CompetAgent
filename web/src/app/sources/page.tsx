@@ -343,12 +343,36 @@ export default function SourcesPage() {
   const [testResults, setTestResults] = useState<TestMap>({});
   const [testing, setTesting] = useState(false);
   const [testSummary, setTestSummary] = useState<{ ok: number; fail: number } | null>(null);
+  const [scoreThreshold, setScoreThreshold] = useState<number>(7);
+  const [thresholdSaving, setThresholdSaving] = useState(false);
 
   useEffect(() => {
     fetch("/api/settings?key=ingestion_paused")
       .then((r) => r.json())
       .then((d) => setPaused(d.value === "true"));
   }, []);
+
+  useEffect(() => {
+    fetch("/api/settings?key=score_threshold")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.value !== null && d.value !== undefined) {
+          setScoreThreshold(Number(d.value));
+        }
+      });
+  }, []);
+
+  async function saveScoreThreshold(value: number) {
+    const clamped = Math.min(10, Math.max(1, value));
+    setScoreThreshold(clamped);
+    setThresholdSaving(true);
+    await fetch("/api/settings", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key: "score_threshold", value: String(clamped) }),
+    });
+    setThresholdSaving(false);
+  }
 
   async function togglePause() {
     if (paused === null) return;
@@ -487,7 +511,7 @@ export default function SourcesPage() {
 
       {/* Ingestion Pipeline toggle */}
       {paused !== null && (
-        <div className="flex items-center justify-between px-4 py-3 rounded-lg border mb-6 bg-white">
+        <div className="flex items-center justify-between px-4 py-3 rounded-lg border mb-3 bg-white">
           <div className="flex items-center gap-3">
             <span className="text-sm font-semibold text-gray-800">Ingestion Pipeline</span>
             {paused
@@ -506,6 +530,28 @@ export default function SourcesPage() {
           </Button>
         </div>
       )}
+
+      {/* Score Threshold setting */}
+      <div className="flex items-center justify-between px-4 py-3 rounded-lg border mb-6 bg-white">
+        <div>
+          <span className="text-sm font-semibold text-gray-800">Score Threshold</span>
+          <p className="text-xs text-gray-500 mt-0.5">Minimum score (1–10) for insights to appear in the Inbox</p>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <input
+            type="number"
+            min={1}
+            max={10}
+            value={scoreThreshold}
+            onChange={(e) => setScoreThreshold(Number(e.target.value))}
+            onBlur={(e) => saveScoreThreshold(Number(e.target.value))}
+            onKeyDown={(e) => { if (e.key === "Enter") saveScoreThreshold(scoreThreshold); }}
+            disabled={thresholdSaving}
+            className="w-16 text-center text-sm border border-gray-200 rounded px-2 py-1 bg-white text-gray-800 focus:outline-none focus:border-blue-400"
+          />
+          {thresholdSaving && <span className="text-xs text-blue-500">Saving…</span>}
+        </div>
+      </div>
 
       {loading ? (
         <div className="space-y-3">

@@ -27,6 +27,10 @@ export interface Insight {
   heatDelta?: number;
   sourceType?: "primary" | "secondary";
   costUsd?: number;
+  sheetsSynced?: boolean;
+  notes?: string;
+  updatedAt?: string;
+  updatedBy?: string;
 }
 
 export interface TrendPoint {
@@ -39,10 +43,10 @@ export interface TrendPoint {
 export type InsightStatus = Insight["status"];
 
 export interface MetricsData {
-  total: number;
-  analyses: number;
-  today: number;
-  saved: number;
+  pendingCount: number;
+  approvedThisWeek: number;
+  highSignalToday: number;
+  topCompetitor: string;
   totalCostUsd: number;
 }
 

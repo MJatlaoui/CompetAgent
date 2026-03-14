@@ -16,6 +16,10 @@ function parseInsightRow(row: {
   status: string;
   tags: string;
   cost_usd?: number;
+  sheets_synced?: number;
+  notes?: string;
+  updated_at?: string;
+  updated_by?: string;
 }): Insight {
   const insight = JSON.parse(row.insight_json);
   return {
@@ -39,7 +43,29 @@ function parseInsightRow(row: {
     heatDelta: insight.heat_delta,
     sourceType: insight.source_type,
     costUsd: row.cost_usd ?? 0,
+    sheetsSynced: row.sheets_synced === 1,
+    notes: row.notes || "",
+    updatedAt: row.updated_at || undefined,
+    updatedBy: row.updated_by || undefined,
   };
+}
+
+export function updateInsightNotes(id: string, notes: string): void {
+  const db = getDb();
+  try {
+    db.prepare("UPDATE pending_insights SET notes = ? WHERE id = ?").run(notes, id);
+  } finally {
+    db.close();
+  }
+}
+
+export function updateSheetsSynced(id: string, synced: boolean): void {
+  const db = getDb();
+  try {
+    db.prepare("UPDATE pending_insights SET sheets_synced = ? WHERE id = ?").run(synced ? 1 : 0, id);
+  } finally {
+    db.close();
+  }
 }
 
 export function getPendingInsights(): Insight[] {
@@ -112,19 +138,23 @@ export function getAllInsights(filters?: {
   }
 }
 
-export function updateInsightStatus(id: string, status: string): void {
+export function updateInsightStatus(id: string, status: string, updatedBy = "web-ui"): void {
   const db = getDb();
   try {
-    db.prepare("UPDATE pending_insights SET status = ? WHERE id = ?").run(status, id);
+    db.prepare(
+      "UPDATE pending_insights SET status = ?, updated_at = datetime('now'), updated_by = ? WHERE id = ?"
+    ).run(status, updatedBy, id);
   } finally {
     db.close();
   }
 }
 
-export function updateInsightTags(id: string, tags: string[]): void {
+export function updateInsightTags(id: string, tags: string[], updatedBy = "web-ui"): void {
   const db = getDb();
   try {
-    db.prepare("UPDATE pending_insights SET tags = ? WHERE id = ?").run(JSON.stringify(tags), id);
+    db.prepare(
+      "UPDATE pending_insights SET tags = ?, updated_at = datetime('now'), updated_by = ? WHERE id = ?"
+    ).run(JSON.stringify(tags), updatedBy, id);
   } finally {
     db.close();
   }
@@ -364,12 +394,38 @@ export function getSourceFetchLog(): Record<string, string> {
 export function getMetrics(): MetricsData {
   const db = getDb();
   try {
-    const total = (db.prepare("SELECT COUNT(*) as count FROM pending_insights").get() as { count: number }).count;
-    const analyses = (db.prepare("SELECT COUNT(*) as count FROM pending_insights WHERE status != 'discarded'").get() as { count: number }).count;
-    const today = (db.prepare("SELECT COUNT(*) as count FROM pending_insights WHERE date(posted_at) = date('now')").get() as { count: number }).count;
-    const saved = (db.prepare("SELECT COUNT(*) as count FROM pending_insights WHERE status = 'approved'").get() as { count: number }).count;
-    const costRow = db.prepare("SELECT COALESCE(SUM(cost_usd), 0) as total FROM pending_insights").get() as { total: number };
-    return { total, analyses, today, saved, totalCostUsd: costRow.total };
+    const pendingCount = (db.prepare(
+      "SELECT COUNT(*) as count FROM pending_insights WHERE status = 'pending'"
+    ).get() as { count: number }).count;
+
+    const approvedThisWeek = (db.prepare(
+      "SELECT COUNT(*) as count FROM pending_insights WHERE status = 'approved' AND posted_at >= datetime('now', '-7 days')"
+    ).get() as { count: number }).count;
+
+    const highSignalToday = (db.prepare(
+      "SELECT COUNT(*) as count FROM pending_insights WHERE date(posted_at) = date('now') AND json_extract(insight_json, '$.score') >= 8"
+    ).get() as { count: number }).count;
+
+    const topCompetitorRow = db.prepare(`
+      SELECT json_extract(insight_json, '$.competitor') as competitor, COUNT(*) as count
+      FROM pending_insights
+      WHERE posted_at >= datetime('now', '-30 days')
+      GROUP BY competitor
+      ORDER BY count DESC
+      LIMIT 1
+    `).get() as { competitor: string; count: number } | undefined;
+
+    const costRow = db.prepare(
+      "SELECT COALESCE(SUM(cost_usd), 0) as total FROM pending_insights"
+    ).get() as { total: number };
+
+    return {
+      pendingCount,
+      approvedThisWeek,
+      highSignalToday,
+      topCompetitor: topCompetitorRow?.competitor || "—",
+      totalCostUsd: costRow.total || 0,
+    };
   } finally {
     db.close();
   }

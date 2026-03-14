@@ -150,7 +150,7 @@ export default function IngestedPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold">Ingested Items</h2>
+        <h2 className="text-2xl font-bold">Raw Feed</h2>
         <div className="flex items-center gap-3">
           {exportMsg && <span className="text-sm text-gray-600">{exportMsg}</span>}
           <Button

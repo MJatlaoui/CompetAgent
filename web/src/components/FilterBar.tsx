@@ -9,6 +9,7 @@ export interface FilterState {
   search: string;
   dateRange: string;   // "all" | "today" | "7d" | "30d" | "90d"
   classification: string; // "" = all
+  competitor?: string;
 }
 
 const DATE_OPTIONS = [
@@ -39,18 +40,19 @@ interface FilterBarProps {
   onChange: (next: FilterState) => void;
   onSearch: () => void;
   showClassification?: boolean;
+  competitors?: string[];
 }
 
-export function FilterBar({ value, onChange, onSearch, showClassification = true }: FilterBarProps) {
+export function FilterBar({ value, onChange, onSearch, showClassification = true, competitors }: FilterBarProps) {
   function set(patch: Partial<FilterState>) {
     onChange({ ...value, ...patch });
   }
 
   function clear() {
-    onChange({ search: "", dateRange: "all", classification: "" });
+    onChange({ search: "", dateRange: "all", classification: "", competitor: undefined });
   }
 
-  const isDirty = value.search || value.dateRange !== "all" || value.classification;
+  const isDirty = value.search || value.dateRange !== "all" || value.classification || value.competitor;
 
   return (
     <div className="flex flex-wrap gap-2 mb-4">
@@ -87,6 +89,20 @@ export function FilterBar({ value, onChange, onSearch, showClassification = true
           <option value="">All topics</option>
           {Object.entries(CLASSIFICATION_LABELS).map(([k, v]) => (
             <option key={k} value={k}>{v}</option>
+          ))}
+        </select>
+      )}
+
+      {/* Competitor filter */}
+      {competitors && competitors.length > 0 && (
+        <select
+          value={value.competitor || ""}
+          onChange={(e) => { set({ competitor: e.target.value || undefined }); }}
+          className="h-8 text-sm border border-gray-200 rounded-md px-2 bg-white text-gray-700 focus:outline-none focus:border-blue-400"
+        >
+          <option value="">All competitors</option>
+          {competitors.map((c) => (
+            <option key={c} value={c}>{c}</option>
           ))}
         </select>
       )}

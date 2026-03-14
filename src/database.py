@@ -53,6 +53,10 @@ def init_db():
         for migration in [
             "ALTER TABLE pending_insights ADD COLUMN cost_usd REAL DEFAULT 0",
             "ALTER TABLE seen_items ADD COLUMN url_norm TEXT",
+            "ALTER TABLE pending_insights ADD COLUMN sheets_synced INTEGER DEFAULT 0",
+            "ALTER TABLE pending_insights ADD COLUMN notes TEXT DEFAULT ''",
+            "ALTER TABLE pending_insights ADD COLUMN updated_at TEXT",
+            "ALTER TABLE pending_insights ADD COLUMN updated_by TEXT",
         ]:
             try:
                 conn.execute(migration)
@@ -102,8 +106,8 @@ def save_pending(item_id: str, insight: dict, cost_usd: float = 0.0) -> str:
     uid = str(uuid4())
     with contextlib.closing(sqlite3.connect(DB_PATH)) as conn:
         conn.execute(
-            "INSERT INTO pending_insights VALUES (?,?,?,?,?,?,?)",
-            (uid, item_id, json.dumps(insight), datetime.now(UTC).isoformat(), "pending", "[]", cost_usd),
+            "INSERT INTO pending_insights (id, item_id, insight_json, posted_at, status, tags, cost_usd, sheets_synced) VALUES (?,?,?,?,?,?,?,?)",
+            (uid, item_id, json.dumps(insight), datetime.now(UTC).isoformat(), "pending", "[]", cost_usd, 0),
         )
         conn.commit()
     return uid
