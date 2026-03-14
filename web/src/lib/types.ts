@@ -28,6 +28,7 @@ export interface Insight {
   sourceType?: "primary" | "secondary";
   costUsd?: number;
   sheetsSynced?: boolean;
+  notes?: string;
 }
 
 export interface TrendPoint {

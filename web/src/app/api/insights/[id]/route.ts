@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { updateInsightStatus, updateInsightTags, getInsightById, updateSheetsSynced } from "@/lib/db";
+import { updateInsightStatus, updateInsightTags, getInsightById, updateSheetsSynced, updateInsightNotes } from "@/lib/db";
 import { writeToSheet } from "@/lib/sheets";
 
 export async function PATCH(
@@ -30,6 +30,10 @@ export async function PATCH(
 
   if (body.tags) {
     updateInsightTags(id, body.tags);
+  }
+
+  if (body.notes !== undefined) {
+    updateInsightNotes(id, body.notes);
   }
 
   // Handle retry of sheets sync

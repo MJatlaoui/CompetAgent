@@ -90,6 +90,15 @@ export default function ReviewPage() {
     setInsights((prev) => prev.map((i) => (i.id === id ? { ...i, tags } : i)));
   }
 
+  async function handleNotesChange(id: string, notes: string) {
+    await fetch(`/api/insights/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ notes }),
+    });
+    setInsights((prev) => prev.map((i) => (i.id === id ? { ...i, notes } : i)));
+  }
+
   function handleSelect(id: string, checked: boolean) {
     setSelectedIds((prev) => {
       const next = new Set(prev);
@@ -285,6 +294,7 @@ export default function ReviewPage() {
               insight={insight}
               onStatusChange={handleStatusChange}
               onTagsChange={handleTagsChange}
+              onNotesChange={handleNotesChange}
               selected={selectedIds.has(insight.id)}
               onSelect={handleSelect}
               focused={focusedIndex === idx}

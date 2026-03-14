@@ -54,6 +54,7 @@ def init_db():
             "ALTER TABLE pending_insights ADD COLUMN cost_usd REAL DEFAULT 0",
             "ALTER TABLE seen_items ADD COLUMN url_norm TEXT",
             "ALTER TABLE pending_insights ADD COLUMN sheets_synced INTEGER DEFAULT 0",
+            "ALTER TABLE pending_insights ADD COLUMN notes TEXT DEFAULT ''",
         ]:
             try:
                 conn.execute(migration)

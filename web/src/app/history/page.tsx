@@ -58,6 +58,15 @@ export default function HistoryPage() {
     fetch_(offset);
   }
 
+  async function handleNotesChange(id: string, notes: string) {
+    await fetch(`/api/insights/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ notes }),
+    });
+    setInsights((prev) => prev.map((i) => (i.id === id ? { ...i, notes } : i)));
+  }
+
   function goTo(off: number) { setOffset(off); fetch_(off); }
 
   function handleExportCsv() {
@@ -124,6 +133,7 @@ export default function HistoryPage() {
               insight={insight}
               showActions={["pending", "review", "discarded"].includes(insight.status)}
               onStatusChange={handleStatusChange}
+              onNotesChange={handleNotesChange}
             />
           ))}
           <div className="flex items-center gap-2 mt-4">

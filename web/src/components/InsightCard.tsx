@@ -28,6 +28,7 @@ interface InsightCardProps {
   showActions?: boolean;
   onStatusChange?: (id: string, status: string) => void;
   onTagsChange?: (id: string, tags: string[]) => void;
+  onNotesChange?: (id: string, notes: string) => void;
   selected?: boolean;
   onSelect?: (id: string, checked: boolean) => void;
   variant?: "default" | "bulletin";
@@ -40,6 +41,7 @@ export function InsightCard({
   showActions = true,
   onStatusChange,
   onTagsChange,
+  onNotesChange,
   selected,
   onSelect,
   variant = "default",
@@ -210,6 +212,20 @@ export function InsightCard({
                         {tag}
                       </span>
                     ))}
+                  </div>
+                )}
+
+                {showActions && onNotesChange !== undefined && (
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Analyst Notes</p>
+                    <textarea
+                      className="w-full text-sm border border-gray-200 rounded p-2 text-gray-700 placeholder-gray-400 resize-none focus:outline-none focus:border-blue-400"
+                      rows={2}
+                      placeholder="Add context, deal team notes, follow-ups…"
+                      defaultValue={insight.notes || ""}
+                      onBlur={(e) => onNotesChange(insight.id, e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
+                    />
                   </div>
                 )}
 
