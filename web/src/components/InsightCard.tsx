@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
+import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -151,6 +152,16 @@ export function InsightCard({
                   >
                     Approve
                   </Button>
+                )}
+                {!isBulletin && (
+                  <Link
+                    href={`/review/${insight.id}`}
+                    className="text-gray-400 hover:text-gray-600 p-0.5"
+                    title="Open permalink"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </Link>
                 )}
                 {!isBulletin && (
                   <button
