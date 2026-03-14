@@ -50,9 +50,20 @@ export function InsightCard({
   forceExpanded,
 }: InsightCardProps) {
   const [expanded, setExpanded] = useState(variant === "bulletin");
+  const [isActing, setIsActing] = useState(false);
+  const [actingButton, setActingButton] = useState<string | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
 
   const isExpanded = forceExpanded !== undefined ? forceExpanded : expanded;
+
+  function act(buttonKey: string, status: string) {
+    if (isActing || !onStatusChange) return;
+    setIsActing(true);
+    setActingButton(buttonKey);
+    onStatusChange(insight.id, status);
+    // Reset after 2s in case the card isn't removed (e.g. non-pending views)
+    setTimeout(() => { setIsActing(false); setActingButton(null); }, 2000);
+  }
 
   useEffect(() => {
     if (focused && cardRef.current) {
@@ -129,11 +140,12 @@ export function InsightCard({
               <div className="flex items-center gap-2 shrink-0">
                 {showActions && onStatusChange && (insight.status === "pending" || insight.status === "review") && (
                   <button
-                    className="text-xs text-gray-400 hover:text-red-600 px-2 py-1 rounded hover:bg-red-50 transition"
-                    onClick={(e) => { e.stopPropagation(); onStatusChange(insight.id, "discarded"); }}
+                    className="text-xs text-gray-400 hover:text-red-600 px-2 py-1 rounded hover:bg-red-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={(e) => { e.stopPropagation(); act("archive-inline", "discarded"); }}
+                    disabled={isActing}
                     title="Archive"
                   >
-                    Archive
+                    {actingButton === "archive-inline" ? "Saving…" : "Archive"}
                   </button>
                 )}
                 <a
@@ -148,9 +160,18 @@ export function InsightCard({
                   <Button
                     size="sm"
                     className="bg-green-600 hover:bg-green-700 text-xs"
-                    onClick={(e) => { e.stopPropagation(); onStatusChange(insight.id, "approved"); }}
+                    onClick={(e) => { e.stopPropagation(); act("approve", "approved"); }}
+                    disabled={isActing}
                   >
-                    Approve
+                    {actingButton === "approve" ? (
+                      <span className="flex items-center gap-1">
+                        <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24" fill="none">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                        </svg>
+                        Saving…
+                      </span>
+                    ) : "Approve"}
                   </Button>
                 )}
                 {!isBulletin && (
@@ -263,56 +284,63 @@ export function InsightCard({
                       {insight.status === "pending" && (
                         <>
                           <button
-                            className="text-xs text-amber-700 hover:text-amber-900"
-                            onClick={() => onStatusChange(insight.id, "review")}
+                            className="text-xs text-amber-700 hover:text-amber-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={() => act("flag", "review")}
+                            disabled={isActing}
                           >
-                            Flag
+                            {actingButton === "flag" ? "Saving…" : "Flag"}
                           </button>
                           <button
-                            className="text-xs text-gray-500 hover:text-gray-700"
-                            onClick={() => onStatusChange(insight.id, "discarded")}
+                            className="text-xs text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={() => act("archive-footer", "discarded")}
+                            disabled={isActing}
                           >
-                            Archive
+                            {actingButton === "archive-footer" ? "Saving…" : "Archive"}
                           </button>
                         </>
                       )}
                       {insight.status === "review" && (
                         <>
                           <button
-                            className="text-xs text-blue-600 hover:text-blue-800"
-                            onClick={() => onStatusChange(insight.id, "pending")}
+                            className="text-xs text-blue-600 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={() => act("requeue", "pending")}
+                            disabled={isActing}
                           >
-                            Requeue
+                            {actingButton === "requeue" ? "Saving…" : "Requeue"}
                           </button>
                           <button
-                            className="text-xs text-gray-500 hover:text-gray-700"
-                            onClick={() => onStatusChange(insight.id, "discarded")}
+                            className="text-xs text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={() => act("archive-footer", "discarded")}
+                            disabled={isActing}
                           >
-                            Archive
+                            {actingButton === "archive-footer" ? "Saving…" : "Archive"}
                           </button>
                         </>
                       )}
                       {insight.status === "discarded" && (
                         <button
-                          className="text-xs text-blue-600 hover:text-blue-800"
-                          onClick={() => onStatusChange(insight.id, "pending")}
+                          className="text-xs text-blue-600 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                          onClick={() => act("restore", "pending")}
+                          disabled={isActing}
                         >
-                          Restore
+                          {actingButton === "restore" ? "Saving…" : "Restore"}
                         </button>
                       )}
                       {insight.status === "approved" && (
                         <>
                           <button
-                            className="text-xs text-amber-700 hover:text-amber-900"
-                            onClick={() => onStatusChange(insight.id, "review")}
+                            className="text-xs text-amber-700 hover:text-amber-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={() => act("move-review", "review")}
+                            disabled={isActing}
                           >
-                            Move to Review
+                            {actingButton === "move-review" ? "Saving…" : "Move to Review"}
                           </button>
                           <button
-                            className="text-xs text-gray-500 hover:text-gray-700"
-                            onClick={() => onStatusChange(insight.id, "discarded")}
+                            className="text-xs text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={() => act("archive-footer", "discarded")}
+                            disabled={isActing}
                           >
-                            Archive
+                            {actingButton === "archive-footer" ? "Saving…" : "Archive"}
                           </button>
                         </>
                       )}
