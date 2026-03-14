@@ -5,3 +5,4 @@ __pycache__/
 .pytest_cache/
 web/.next/
 web/node_modules/
+.worktrees/
