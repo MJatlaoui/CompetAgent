@@ -86,6 +86,11 @@ export function InsightCard({
                 <span className={`text-xs border rounded-full px-2 py-0.5 ${statusCls}`}>
                   {insight.status}
                 </span>
+                {insight.status === "approved" && insight.sheetsSynced === false && (
+                  <span className="text-xs text-amber-600 border border-amber-400 rounded-full px-2 py-0.5">
+                    Sheets sync failed
+                  </span>
+                )}
                 <span className="text-sm font-bold text-gray-800">
                   {insight.score}<span className="text-xs font-normal text-gray-400">/10</span>
                 </span>

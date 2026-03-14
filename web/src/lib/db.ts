@@ -16,6 +16,7 @@ function parseInsightRow(row: {
   status: string;
   tags: string;
   cost_usd?: number;
+  sheets_synced?: number;
 }): Insight {
   const insight = JSON.parse(row.insight_json);
   return {
@@ -39,7 +40,17 @@ function parseInsightRow(row: {
     heatDelta: insight.heat_delta,
     sourceType: insight.source_type,
     costUsd: row.cost_usd ?? 0,
+    sheetsSynced: row.sheets_synced === 1,
   };
+}
+
+export function updateSheetsSynced(id: string, synced: boolean): void {
+  const db = getDb();
+  try {
+    db.prepare("UPDATE pending_insights SET sheets_synced = ? WHERE id = ?").run(synced ? 1 : 0, id);
+  } finally {
+    db.close();
+  }
 }
 
 export function getPendingInsights(): Insight[] {

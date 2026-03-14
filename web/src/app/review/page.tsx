@@ -20,6 +20,7 @@ export default function ReviewPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkLoading, setBulkLoading] = useState(false);
   const [archivingAll, setArchivingAll] = useState(false);
+  const [sheetsErrors, setSheetsErrors] = useState<string[]>([]);
 
   function buildParams(off = offset) {
     const p = new URLSearchParams({ view: "pending", limit: String(LIMIT), offset: String(off) });
@@ -58,11 +59,16 @@ export default function ReviewPage() {
   function handleSearch() { setOffset(0); fetch_(0); }
 
   async function handleStatusChange(id: string, status: string) {
-    await fetch(`/api/insights/${id}`, {
+    const insight = insights.find((i) => i.id === id);
+    const res = await fetch(`/api/insights/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
     });
+    const data = await res.json();
+    if (data.sheetsError && insight) {
+      setSheetsErrors((prev) => [...prev, insight.headline || id]);
+    }
     setInsights((prev) => prev.filter((i) => i.id !== id));
     setTotal((t) => t - 1);
     setSelectedIds((prev) => { const next = new Set(prev); next.delete(id); return next; });
@@ -131,6 +137,19 @@ export default function ReviewPage() {
 
   return (
     <div>
+      {sheetsErrors.length > 0 && (
+        <div className="mb-4 flex items-center justify-between gap-3 rounded-lg border border-amber-400 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          <span>
+            ⚠ Sheets sync failed for {sheetsErrors.length} insight{sheetsErrors.length > 1 ? "s" : ""} — approved in the database but not written to the battlecard.
+          </span>
+          <button
+            className="text-amber-700 hover:text-amber-900 font-medium underline shrink-0"
+            onClick={() => setSheetsErrors([])}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-bold">
           Inbox

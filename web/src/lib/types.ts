@@ -27,6 +27,7 @@ export interface Insight {
   heatDelta?: number;
   sourceType?: "primary" | "secondary";
   costUsd?: number;
+  sheetsSynced?: boolean;
 }
 
 export interface TrendPoint {
