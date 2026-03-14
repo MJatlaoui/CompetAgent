@@ -29,6 +29,8 @@ export interface Insight {
   costUsd?: number;
   sheetsSynced?: boolean;
   notes?: string;
+  updatedAt?: string;
+  updatedBy?: string;
 }
 
 export interface TrendPoint {

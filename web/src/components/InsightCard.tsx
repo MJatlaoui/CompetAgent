@@ -229,6 +229,14 @@ export function InsightCard({
                   </div>
                 )}
 
+                {(insight.updatedBy || insight.updatedAt) && (
+                  <p className="text-xs text-gray-400 pt-1">
+                    Last updated
+                    {insight.updatedBy && ` by ${insight.updatedBy}`}
+                    {insight.updatedAt && ` on ${new Date(insight.updatedAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}`}
+                  </p>
+                )}
+
                 {/* Footer: workflow + secondary actions */}
                 {showActions && onStatusChange && (
                   <div className="flex items-center justify-between pt-2 border-t border-gray-100">

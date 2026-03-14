@@ -18,6 +18,8 @@ function parseInsightRow(row: {
   cost_usd?: number;
   sheets_synced?: number;
   notes?: string;
+  updated_at?: string;
+  updated_by?: string;
 }): Insight {
   const insight = JSON.parse(row.insight_json);
   return {
@@ -43,6 +45,8 @@ function parseInsightRow(row: {
     costUsd: row.cost_usd ?? 0,
     sheetsSynced: row.sheets_synced === 1,
     notes: row.notes || "",
+    updatedAt: row.updated_at || undefined,
+    updatedBy: row.updated_by || undefined,
   };
 }
 
@@ -134,19 +138,23 @@ export function getAllInsights(filters?: {
   }
 }
 
-export function updateInsightStatus(id: string, status: string): void {
+export function updateInsightStatus(id: string, status: string, updatedBy = "web-ui"): void {
   const db = getDb();
   try {
-    db.prepare("UPDATE pending_insights SET status = ? WHERE id = ?").run(status, id);
+    db.prepare(
+      "UPDATE pending_insights SET status = ?, updated_at = datetime('now'), updated_by = ? WHERE id = ?"
+    ).run(status, updatedBy, id);
   } finally {
     db.close();
   }
 }
 
-export function updateInsightTags(id: string, tags: string[]): void {
+export function updateInsightTags(id: string, tags: string[], updatedBy = "web-ui"): void {
   const db = getDb();
   try {
-    db.prepare("UPDATE pending_insights SET tags = ? WHERE id = ?").run(JSON.stringify(tags), id);
+    db.prepare(
+      "UPDATE pending_insights SET tags = ?, updated_at = datetime('now'), updated_by = ? WHERE id = ?"
+    ).run(JSON.stringify(tags), updatedBy, id);
   } finally {
     db.close();
   }
