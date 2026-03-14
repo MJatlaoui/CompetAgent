@@ -9,14 +9,14 @@ import { cn } from "@/lib/utils";
 const PRIMARY_NAV = [
   { href: "/review",   label: "Inbox",    Icon: Inbox,     countKey: "pending" },
   { href: "/flagged",  label: "Flagged",  Icon: Flag,      countKey: "review"  },
-  { href: "/bulletin", label: "Bulletin", Icon: Newspaper, countKey: null      },
+  { href: "/bulletin", label: "Intelligence Digest", Icon: Newspaper, countKey: null      },
   { href: "/history",  label: "History",  Icon: Clock,     countKey: null      },
 ];
 
 const SECONDARY_NAV = [
   { href: "/dashboard", label: "Dashboard",          Icon: BarChart2, countKey: null },
   { href: "/sources",   label: "Sources & Settings", Icon: Settings,  countKey: null },
-  { href: "/ingested",  label: "Feed",               Icon: Database,  countKey: null },
+  { href: "/ingested",  label: "Raw Feed",            Icon: Database,  countKey: null },
   { href: "/about",     label: "About",              Icon: Info,      countKey: null },
 ];
 
