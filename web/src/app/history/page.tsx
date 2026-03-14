@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Download } from "lucide-react";
 import { InsightCard } from "@/components/InsightCard";
 import { FilterBar, dateRangeToParam } from "@/components/FilterBar";
 import type { FilterState } from "@/components/FilterBar";
@@ -59,9 +60,27 @@ export default function HistoryPage() {
 
   function goTo(off: number) { setOffset(off); fetch_(off); }
 
+  function handleExportCsv() {
+    const p = new URLSearchParams();
+    if (status !== "all") p.set("status", status);
+    if (filters.search) p.set("search", filters.search);
+    if (filters.classification) p.set("classification", filters.classification);
+    if (filters.competitor) p.set("competitor", filters.competitor);
+    const { from, to } = dateRangeToParam(filters.dateRange);
+    if (from) p.set("from", from);
+    if (to) p.set("to", to);
+    window.location.href = `/api/insights/export?${p}`;
+  }
+
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-4">History</h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-2xl font-bold">History</h2>
+        <Button variant="outline" size="sm" onClick={handleExportCsv}>
+          <Download className="w-4 h-4 mr-1.5" />
+          Export CSV
+        </Button>
+      </div>
 
       <div className="flex gap-2 mb-3">
         <Select value={status} onValueChange={(v) => { setStatus(v); setOffset(0); }}>
