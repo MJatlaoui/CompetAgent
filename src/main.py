@@ -8,7 +8,7 @@ from urllib.parse import urlparse, urlunparse
 from src.database import (
     init_db, is_seen, mark_seen, save_pending,
     get_recent_titles, get_recent_url_norms,
-    get_last_fetched, mark_source_fetched, get_setting,
+    get_last_fetched, mark_source_fetched, get_setting, set_setting,
 )
 from src.sources import load_sources
 from src.intelligence import quick_filter, analyze_batch, BATCH_SIZE
@@ -93,7 +93,12 @@ def run():
                 "disabled": src.get("disabled", False),
             })
 
-    threshold = strategy_cfg.get("score_threshold", 7)
+    db_threshold = get_setting("score_threshold")
+    if db_threshold:
+        threshold = int(db_threshold)
+    else:
+        threshold = strategy_cfg.get("score_threshold", 7)
+        set_setting("score_threshold", str(threshold))
 
     all_sources = sources_cfg["competitors"]
     due_sources = [s for s in all_sources if not s.get("disabled", False) and _is_source_due(s)]
