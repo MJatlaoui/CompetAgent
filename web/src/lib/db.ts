@@ -394,12 +394,38 @@ export function getSourceFetchLog(): Record<string, string> {
 export function getMetrics(): MetricsData {
   const db = getDb();
   try {
-    const total = (db.prepare("SELECT COUNT(*) as count FROM pending_insights").get() as { count: number }).count;
-    const analyses = (db.prepare("SELECT COUNT(*) as count FROM pending_insights WHERE status != 'discarded'").get() as { count: number }).count;
-    const today = (db.prepare("SELECT COUNT(*) as count FROM pending_insights WHERE date(posted_at) = date('now')").get() as { count: number }).count;
-    const saved = (db.prepare("SELECT COUNT(*) as count FROM pending_insights WHERE status = 'approved'").get() as { count: number }).count;
-    const costRow = db.prepare("SELECT COALESCE(SUM(cost_usd), 0) as total FROM pending_insights").get() as { total: number };
-    return { total, analyses, today, saved, totalCostUsd: costRow.total };
+    const pendingCount = (db.prepare(
+      "SELECT COUNT(*) as count FROM pending_insights WHERE status = 'pending'"
+    ).get() as { count: number }).count;
+
+    const approvedThisWeek = (db.prepare(
+      "SELECT COUNT(*) as count FROM pending_insights WHERE status = 'approved' AND posted_at >= datetime('now', '-7 days')"
+    ).get() as { count: number }).count;
+
+    const highSignalToday = (db.prepare(
+      "SELECT COUNT(*) as count FROM pending_insights WHERE date(posted_at) = date('now') AND json_extract(insight_json, '$.score') >= 8"
+    ).get() as { count: number }).count;
+
+    const topCompetitorRow = db.prepare(`
+      SELECT json_extract(insight_json, '$.competitor') as competitor, COUNT(*) as count
+      FROM pending_insights
+      WHERE posted_at >= datetime('now', '-30 days')
+      GROUP BY competitor
+      ORDER BY count DESC
+      LIMIT 1
+    `).get() as { competitor: string; count: number } | undefined;
+
+    const costRow = db.prepare(
+      "SELECT COALESCE(SUM(cost_usd), 0) as total FROM pending_insights"
+    ).get() as { total: number };
+
+    return {
+      pendingCount,
+      approvedThisWeek,
+      highSignalToday,
+      topCompetitor: topCompetitorRow?.competitor || "—",
+      totalCostUsd: costRow.total || 0,
+    };
   } finally {
     db.close();
   }

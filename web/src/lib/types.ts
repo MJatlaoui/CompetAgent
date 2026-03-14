@@ -43,10 +43,10 @@ export interface TrendPoint {
 export type InsightStatus = Insight["status"];
 
 export interface MetricsData {
-  total: number;
-  analyses: number;
-  today: number;
-  saved: number;
+  pendingCount: number;
+  approvedThisWeek: number;
+  highSignalToday: number;
+  topCompetitor: string;
   totalCostUsd: number;
 }
 
