@@ -10,12 +10,20 @@ ADAPTERS: dict[str, SourceAdapter] = {
 }
 
 
-def load_sources(config: dict) -> list[dict]:
-    """Dispatch each feed entry in config to the appropriate adapter."""
+def load_sources(config: dict) -> tuple[list[dict], dict[str, str]]:
+    """Dispatch each feed entry in config to the appropriate adapter.
+
+    Returns (items, errors) where errors maps source_name -> error message
+    for any source that failed to fetch.
+    """
     all_items: list[dict] = []
+    errors: dict[str, str] = {}
+
     for comp in config["competitors"]:
         name = comp["name"]
         tier = comp.get("tier", 1)
+        source_errors: list[str] = []
+
         for feed in comp["feeds"]:
             feed_type = feed["type"]
             adapter = ADAPTERS.get(feed_type)
@@ -23,8 +31,17 @@ def load_sources(config: dict) -> list[dict]:
                 print(f"[WARN] Unknown source type: {feed_type} — skipping")
                 continue
             extra = {k: v for k, v in feed.items() if k not in ("type", "url")}
-            items = adapter.fetch(feed["url"], name, **extra)
-            for item in items:
-                item["tier"] = tier
-            all_items.extend(items)
-    return all_items
+            try:
+                items = adapter.fetch(feed["url"], name, **extra)
+                for item in items:
+                    item["tier"] = tier
+                all_items.extend(items)
+            except Exception as e:
+                msg = f"{feed['url']}: {e}"
+                print(f"[ERROR] {name} — {msg}")
+                source_errors.append(msg)
+
+        if source_errors:
+            errors[name] = "; ".join(source_errors)
+
+    return all_items, errors

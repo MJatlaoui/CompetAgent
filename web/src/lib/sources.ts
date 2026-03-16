@@ -109,6 +109,23 @@ export function toggleSourceEnabled(
   }
 }
 
+export function setAllSourcesEnabled(enabled: boolean): void {
+  const competitors = readCompetitors();
+  competitors.forEach((s) => { if (enabled) { delete s.disabled; } else { s.disabled = true; } });
+  writeCompetitors(competitors);
+
+  const industry = readIndustry();
+  industry.forEach((s) => { if (enabled) { delete s.disabled; } else { s.disabled = true; } });
+  writeIndustry(industry);
+}
+
+export function getAllSourcesDisabled(): boolean {
+  const competitors = readCompetitors();
+  const industry = readIndustry();
+  const all = [...competitors, ...industry];
+  return all.length > 0 && all.every((s) => s.disabled === true);
+}
+
 export function updateRefreshHours(
   sourceType: "competitor" | "industry",
   name: string,

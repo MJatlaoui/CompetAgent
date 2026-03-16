@@ -16,6 +16,8 @@ def test_rss_adapter_returns_normalized_items():
     }.get(k, d)
     mock_feed = MagicMock()
     mock_feed.entries = [mock_entry]
+    mock_feed.status = None
+    mock_feed.bozo = False
 
     with patch("src.sources.rss.feedparser.parse", return_value=mock_feed):
         items = RSSAdapter().fetch("https://genesys.com/feed", "Genesys")
@@ -34,6 +36,8 @@ def test_rss_adapter_caps_at_20_entries():
     mock_entry.get = lambda k, d="": "https://example.com/post" if k in ("link", "id") else ""
     mock_feed = MagicMock()
     mock_feed.entries = [mock_entry] * 30
+    mock_feed.status = None
+    mock_feed.bozo = False
 
     with patch("src.sources.rss.feedparser.parse", return_value=mock_feed):
         items = RSSAdapter().fetch("https://example.com/feed", "Test")
@@ -70,8 +74,8 @@ def test_html_adapter_returns_items():
 def test_html_adapter_handles_network_error():
     from src.sources.html import HTMLAdapter
     with patch("src.sources.html.httpx.get", side_effect=Exception("timeout")):
-        items = HTMLAdapter().fetch("https://bad.url/", "Test", selector="a", base_url="")
-    assert items == []
+        with pytest.raises(Exception, match="timeout"):
+            HTMLAdapter().fetch("https://bad.url/", "Test", selector="a", base_url="")
 
 
 # --- Registry / load_sources ---
@@ -91,7 +95,7 @@ def test_load_sources_dispatches_to_correct_adapters():
         "rss":  MagicMock(fetch=MagicMock(return_value=[{"id": "rss_item"}])),
         "html": MagicMock(fetch=MagicMock(return_value=[{"id": "html_item"}])),
     }):
-        items = load_sources(config)
+        items, errors = load_sources(config)
 
     assert len(items) == 2
 
@@ -104,7 +108,7 @@ def test_load_sources_warns_on_unknown_type(capsys):
             {"name": "Alpha", "feeds": [{"type": "graphql", "url": "https://alpha.com/gql"}]},
         ]
     }
-    items = load_sources(config)
+    items, errors = load_sources(config)
     assert items == []
     captured = capsys.readouterr()
     assert "Unknown source type: graphql" in captured.out

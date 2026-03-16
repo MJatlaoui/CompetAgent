@@ -13,7 +13,8 @@ export async function GET(request: NextRequest) {
   const search = searchParams.get("search") || undefined;
   const limit = parseInt(searchParams.get("limit") || "100");
   const offset = parseInt(searchParams.get("offset") || "0");
+  const sortDir = searchParams.get("sortDir") === "asc" ? "asc" : "desc";
 
-  const result = getSeenItems({ sources, search, limit, offset });
+  const result = getSeenItems({ sources, search, limit, offset, sortDir });
   return NextResponse.json(result);
 }

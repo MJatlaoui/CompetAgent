@@ -11,6 +11,11 @@ from pathlib import Path
 client = anthropic.Anthropic()
 SYSTEM_PROMPT = Path("prompts/intel_filter.txt").read_text()
 
+_KB_PATH = Path("prompts/zoom_knowledge.md")
+_KB = _KB_PATH.read_text(encoding="utf-8").strip() if _KB_PATH.exists() else ""
+if _KB:
+    SYSTEM_PROMPT = f"{_KB}\n\n---\n\n" + SYSTEM_PROMPT
+
 BATCH_SIZE = 5    # articles per API call
 MAX_TOKENS_PER_ITEM = 700   # sub_scores + heat back in Claude output
 
@@ -19,6 +24,21 @@ _IN   = 0.80  / 1_000_000   # regular input
 _OUT  = 4.00  / 1_000_000   # output
 _CW   = 1.00  / 1_000_000   # cache write
 _CR   = 0.08  / 1_000_000   # cache read
+
+# Accumulated per-call stats for the current run; flushed to DB by main.py
+_call_log: list[dict] = []
+
+try:
+    _tok = client.messages.count_tokens(
+        model="claude-haiku-4-5",
+        system=SYSTEM_PROMPT,
+        messages=[{"role": "user", "content": "x"}],
+    )
+    print(f"[INFO] System prompt: {_tok.input_tokens:,} tokens "
+          f"(~${_tok.input_tokens * _CW:.4f} cache-write / "
+          f"${_tok.input_tokens * _CR:.4f} cache-read per call)")
+except Exception:
+    pass
 
 QUICK_SYSTEM = (
     "CCaaS competitive intelligence relevance filter. "
@@ -109,6 +129,15 @@ def quick_filter(item: dict) -> tuple[bool, float]:
             messages=[{"role": "user", "content": f"Title: {item['title']}"}],
         )
         cost = _calc_cost(resp.usage)
+        _call_log.append({
+            "stage": "quick_filter",
+            "batch_size": 1,
+            "input_tokens": getattr(resp.usage, "input_tokens", 0),
+            "output_tokens": getattr(resp.usage, "output_tokens", 0),
+            "cache_read_tokens": getattr(resp.usage, "cache_read_input_tokens", 0),
+            "cache_creation_tokens": getattr(resp.usage, "cache_creation_input_tokens", 0),
+            "cost_usd": cost,
+        })
         raw = resp.content[0].text.strip()
         result = json.loads(_extract_json_object(raw))
         return bool(result.get("relevant", True)), cost
@@ -134,8 +163,8 @@ def analyze_batch(items: list[dict]) -> list[tuple[dict | None, float]]:
             f"Competitor: {item['competitor']}\n"
             f"Title: {item['title']}\n"
             f"URL: {item['url']}\n"
-            f"Content: {item['summary'][:2000]}\n"
-            f"Published: {item['published']}"
+            f"Content: {(item.get('summary') or item.get('content') or '')[:2000]}\n"
+            f"Published: {item.get('published', '')}"
         )
 
     if n == 1:
@@ -158,6 +187,15 @@ def analyze_batch(items: list[dict]) -> list[tuple[dict | None, float]]:
         )
         cost = _calc_cost(resp.usage)
         cost_per_item = cost / n
+        _call_log.append({
+            "stage": "analyze_batch",
+            "batch_size": n,
+            "input_tokens": getattr(resp.usage, "input_tokens", 0),
+            "output_tokens": getattr(resp.usage, "output_tokens", 0),
+            "cache_read_tokens": getattr(resp.usage, "cache_read_input_tokens", 0),
+            "cache_creation_tokens": getattr(resp.usage, "cache_creation_input_tokens", 0),
+            "cost_usd": cost,
+        })
         raw = resp.content[0].text.strip()
 
         if n == 1:

@@ -20,7 +20,7 @@ export interface Insight {
   sourceUrl: string;
   worthSurfacing: boolean;
   postedAt: string;
-  status: "pending" | "approved" | "review" | "discarded" | "seen" | "saved_offline";
+  status: "pending" | "approved" | "review" | "discarded" | "seen" | "suggested" | "scoring" | "error";
   tags: string[];
   subScores?: SubScores;
   heat?: number;
@@ -31,6 +31,7 @@ export interface Insight {
   notes?: string;
   updatedAt?: string;
   updatedBy?: string;
+  autoScored?: boolean;
 }
 
 export interface TrendPoint {
@@ -47,7 +48,11 @@ export interface MetricsData {
   approvedThisWeek: number;
   highSignalToday: number;
   topCompetitor: string;
+  topCompetitorCount: number;
   totalCostUsd: number;
+  lastSyncAt: string | null;
+  newToday: number;
+  inReview: number;
 }
 
 export interface SeenItem {
@@ -56,4 +61,7 @@ export interface SeenItem {
   url: string;
   competitor: string;
   seenAt: string;
+  publishedAt: string | null;
+  score?: number | null;
+  insightStatus?: string | null;
 }

@@ -49,7 +49,7 @@ def test_run_posts_high_score_items_to_slack(tmp_path, monkeypatch):
     with patch("src.main.yaml.safe_load", side_effect=[MOCK_CONFIG, MOCK_STRATEGY]), \
          patch("builtins.open"), \
          patch("src.main.Path.exists", return_value=False), \
-         patch("src.main.load_sources", return_value=[MOCK_ITEM]), \
+         patch("src.main.load_sources", return_value=([MOCK_ITEM], {})), \
          patch("src.main.analyze_batch", return_value=[(HIGH_SCORE_INSIGHT, 0.001)]), \
          patch("src.main.save_pending", return_value="fake-uuid") as mock_save:
 
@@ -66,7 +66,7 @@ def test_run_skips_low_score_items(tmp_path, monkeypatch):
     with patch("src.main.yaml.safe_load", side_effect=[MOCK_CONFIG, MOCK_STRATEGY]), \
          patch("builtins.open"), \
          patch("src.main.Path.exists", return_value=False), \
-         patch("src.main.load_sources", return_value=[MOCK_ITEM]), \
+         patch("src.main.load_sources", return_value=([MOCK_ITEM], {})), \
          patch("src.main.analyze_batch", return_value=[(LOW_SCORE_INSIGHT, 0.001)]), \
          patch("src.main.save_pending") as mock_save:
 
@@ -85,7 +85,8 @@ def test_run_skips_already_seen_items(tmp_path, monkeypatch):
     with patch("src.main.yaml.safe_load", side_effect=[MOCK_CONFIG, MOCK_STRATEGY]), \
          patch("builtins.open"), \
          patch("src.main.Path.exists", return_value=False), \
-         patch("src.main.load_sources", return_value=[MOCK_ITEM]), \
+         patch("src.main.load_sources", return_value=([MOCK_ITEM], {})), \
+         patch("src.main.run_auto_scoring"), \
          patch("src.main.analyze_batch") as mock_analyze:
 
         from src.main import run
@@ -137,7 +138,7 @@ def test_run_includes_industry_sources_when_file_exists(tmp_path, monkeypatch):
          patch("src.main.INDUSTRY_SOURCES_PATH", str(industry_yaml)), \
          patch("src.main.load_sources") as mock_load, \
          patch("src.main.analyze_batch", return_value=[]):
-        mock_load.return_value = []
+        mock_load.return_value = ([], {})
         from src.main import run
         run()
 

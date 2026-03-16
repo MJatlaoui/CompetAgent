@@ -19,7 +19,7 @@ class HTMLAdapter:
             resp.raise_for_status()
         except Exception as e:
             print(f"[WARN] Failed to fetch {url}: {e}")
-            return []
+            raise
 
         soup = BeautifulSoup(resp.text, "html.parser")
         items: list[FeedItem] = []

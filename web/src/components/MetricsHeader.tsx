@@ -48,7 +48,7 @@ export function MetricsHeader() {
   ];
 
   return (
-    <div className="flex gap-3 mb-6 flex-wrap">
+    <div className="flex items-center gap-3 mb-6 flex-wrap">
       {pills.map(({ label, value, Icon, color, bg, title }) => (
         <div
           key={label}

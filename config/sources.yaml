@@ -7,178 +7,148 @@ competitors:
         url: https://developer.genesys.cloud/blog/feed.xml
       - type: html
         url: https://help.genesys.cloud/release-notes/genesys-cloud/
-        selector: "a[href*='/release-notes/genesys-cloud/'][href*='-2026']"
-        base_url: "https://help.genesys.cloud"
+        selector: a[href*='/release-notes/genesys-cloud/'][href*='-2026']
+        base_url: https://help.genesys.cloud
         follow_links: true
-        title_selector: "h1"
-
+        title_selector: h1
   - name: Five9
     feeds:
       - type: rss
         url: https://www.five9.com/blog/feed
-
   - name: NICE_CXone
     feeds:
       - type: html
         url: https://www.nice.com/blog/
-        selector: "h2 a, h3 a"
+        selector: h2 a, h3 a
         follow_links: true
-        title_selector: "h1"
-
+        title_selector: h1
   - name: Amazon_Connect
     feeds:
       - type: html
         url: https://aws.amazon.com/releasenotes/?tag=relatedto%23amazon-connect
-        selector: ".item-title a"
-        base_url: "https://aws.amazon.com"
-
+        selector: .item-title a
+        base_url: https://aws.amazon.com
   - name: Talkdesk
     feeds:
       - type: html
         url: https://www.talkdesk.com/blog/
-        selector: "h2 a, h3 a"
+        selector: h2 a, h3 a
         follow_links: true
-        title_selector: "h1"
-
+        title_selector: h1
   - name: Salesforce_ServiceCloud
     feeds:
       - type: rss
         url: https://www.salesforce.com/blog/feed/
       - type: html
         url: https://help.salesforce.com/s/articleView?id=release-notes.salesforce_release_notes.htm
-        selector: "h2.slds-text-heading_medium"
-        base_url: "https://help.salesforce.com"
-
+        selector: h2.slds-text-heading_medium
+        base_url: https://help.salesforce.com
   - name: Zendesk
     feeds:
       - type: html
         url: https://www.zendesk.com/blog/
-        selector: "h2 a, h3 a"
+        selector: h2 a, h3 a
         follow_links: true
-        title_selector: "h1"
-
+        title_selector: h1
   - name: Dialpad
     feeds:
       - type: html
         url: https://www.dialpad.com/blog/
-        selector: "h2 a, h3 a"
+        selector: h2 a, h3 a
         follow_links: true
-        title_selector: "h1"
-
+        title_selector: h1
   - name: 8x8
     feeds:
       - type: rss
         url: https://www.8x8.com/blog/feed
-
   - name: Avaya
     feeds:
       - type: html
         url: https://www.avaya.com/blogs/
-        selector: "h2 a, h3 a"
+        selector: h2 a, h3 a
         follow_links: true
-        title_selector: "h1"
-
+        title_selector: h1
   - name: Freshworks
-    disabled: true
     feeds:
       - type: rss
         url: https://www.freshworks.com/freshdesk/blog/feed/
-
   - name: ServiceNow
     feeds:
       - type: rss
         url: https://blogs.servicenow.com/feed
-
   - name: LivePerson
     feeds:
       - type: html
         url: https://www.liveperson.com/blog/
-        selector: "h2 a, h3 a"
+        selector: h2 a, h3 a
         follow_links: true
-        title_selector: "h1"
-
+        title_selector: h1
   - name: Twilio
     feeds:
       - type: rss
         url: https://www.twilio.com/blog/feed
-
   - name: Sprinklr
     feeds:
       - type: rss
         url: https://www.sprinklr.com/blog/feed/
-
   - name: Verint
     feeds:
       - type: rss
         url: https://www.verint.com/blog/feed/
-
   - name: Vonage
     feeds:
       - type: rss
         url: https://www.vonage.com/resources/articles/feed/
-
   - name: Intercom
     feeds:
       - type: rss
         url: https://www.intercom.com/blog/feed
-
   - name: Gladly
     feeds:
       - type: html
         url: https://www.gladly.com/blog/
-        selector: "h2 a, h3 a"
+        selector: h2 a, h3 a
         follow_links: true
-        title_selector: "h1"
-
+        title_selector: h1
   - name: Front
     feeds:
       - type: rss
         url: https://front.com/blog/feed
-
   - name: Qualtrics
     feeds:
       - type: html
         url: https://www.qualtrics.com/blog/
-        selector: "h2 a, h3 a"
+        selector: h2 a, h3 a
         follow_links: true
-        title_selector: "h1"
-
+        title_selector: h1
   - name: Medallia
     feeds:
       - type: rss
         url: https://www.medallia.com/blog/feed/
-
   - name: Calabrio
     feeds:
       - type: rss
         url: https://www.calabrio.com/blog/feed/
-
   - name: UJET
-    disabled: true
     feeds:
       - type: rss
         url: https://www.ujet.cx/blog/rss.xml
-
   - name: Kustomer
-    disabled: true
     feeds:
       - type: html
         url: https://www.kustomer.com/blog/
-        selector: "h2 a, h3 a"
-
+        selector: h2 a, h3 a
   - name: Assembled
     feeds:
       - type: html
         url: https://www.assembled.com/blog
-        selector: "h2 a, h3 a"
+        selector: h2 a, h3 a
         follow_links: true
-        title_selector: "h1"
-
+        title_selector: h1
   - name: Cognigy
     feeds:
       - type: rss
         url: https://www.cognigy.com/blog/rss.xml
-
   - name: Kore_AI
     feeds:
       - type: rss

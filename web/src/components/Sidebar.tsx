@@ -7,6 +7,7 @@ import { Inbox, Flag, Newspaper, Clock, Database, BarChart2, Settings, Info } fr
 import { cn } from "@/lib/utils";
 
 const PRIMARY_NAV = [
+  { href: "/ingested", label: "Feed",     Icon: Database,  countKey: null      },
   { href: "/review",   label: "Inbox",    Icon: Inbox,     countKey: "pending" },
   { href: "/flagged",  label: "Flagged",  Icon: Flag,      countKey: "review"  },
   { href: "/bulletin", label: "Intelligence Digest", Icon: Newspaper, countKey: null      },
@@ -16,7 +17,6 @@ const PRIMARY_NAV = [
 const SECONDARY_NAV = [
   { href: "/dashboard", label: "Dashboard",          Icon: BarChart2, countKey: null },
   { href: "/sources",   label: "Sources & Settings", Icon: Settings,  countKey: null },
-  { href: "/ingested",  label: "Raw Feed",            Icon: Database,  countKey: null },
   { href: "/about",     label: "About",              Icon: Info,      countKey: null },
 ];
 

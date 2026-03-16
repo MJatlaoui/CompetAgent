@@ -1,17 +1,36 @@
 import os
 import re
+import sys
 import difflib
 import yaml
+
+# Load .env for local development (no-op if key already set or file absent)
+def _load_dotenv():
+    env_path = os.path.join(os.path.dirname(__file__), "..", ".env")
+    if os.path.exists(env_path):
+        with open(env_path) as _f:
+            for _line in _f:
+                _line = _line.strip()
+                if _line and not _line.startswith("#") and "=" in _line:
+                    _k, _, _v = _line.partition("=")
+                    os.environ.setdefault(_k.strip(), _v.strip())
+
+_load_dotenv()
+
+# Ensure stdout can handle any Unicode character on Windows terminals
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 from datetime import timedelta
 from pathlib import Path
 from urllib.parse import urlparse, urlunparse
 from src.database import (
-    init_db, is_seen, mark_seen, save_pending,
+    init_db, backfill_published_at_from_urls, is_seen, mark_seen, save_pending,
     get_recent_titles, get_recent_url_norms,
-    get_last_fetched, mark_source_fetched, get_setting, set_setting,
+    get_last_fetched, mark_source_fetched, mark_source_error, get_setting, set_setting,
+    get_unscored_recent_items, log_api_call,
 )
 from src.sources import load_sources
-from src.intelligence import quick_filter, analyze_batch, BATCH_SIZE
+from src.intelligence import quick_filter, analyze_batch, BATCH_SIZE, _call_log
 from src.filter import is_worth_analyzing, has_competitor_mention
 
 INDUSTRY_SOURCES_PATH = "config/industry_sources.yaml"
@@ -68,8 +87,12 @@ def _is_duplicate_title(title: str, recent_set: set) -> bool:
     )
 
 
-def run():
+def run(limit: int | None = None, dry_run: bool = False, fresh: bool = False):
+    if fresh:
+        import src.database as _db
+        _db.DB_PATH = Path("data/dry_run.db")
     init_db()
+    backfill_published_at_from_urls()
 
     if get_setting("ingestion_paused") == "true":
         print("[INFO] Ingestion is paused. Skipping run.")
@@ -102,14 +125,21 @@ def run():
 
     all_sources = sources_cfg["competitors"]
     due_sources = [s for s in all_sources if not s.get("disabled", False) and _is_source_due(s)]
+    if limit is not None:
+        due_sources = due_sources[:limit]
     skipped = len(all_sources) - len(due_sources)
     if skipped:
         print(f"[INFO] Skipping {skipped} source(s) not due for refresh")
 
     due_cfg = {**sources_cfg, "competitors": due_sources}
-    items = load_sources(due_cfg)
+    items, fetch_errors = load_sources(due_cfg)
     for src in due_sources:
-        mark_source_fetched(src["name"])
+        if src["name"] in fetch_errors:
+            mark_source_error(src["name"], fetch_errors[src["name"]])
+        else:
+            mark_source_fetched(src["name"])
+    if fetch_errors:
+        print(f"[WARN] {len(fetch_errors)} source(s) failed to fetch: {', '.join(fetch_errors)}")
     print(f"[INFO] Fetched {len(items)} raw items from {len(due_sources)} source(s)")
 
     new_items = [i for i in items if not is_seen(i["id"])]
@@ -124,7 +154,7 @@ def run():
 
     for item in new_items:
         url_norm = _normalize_url(item["url"])
-        mark_seen(item["id"], item["title"], item["url"], item["competitor"], url_norm)
+        mark_seen(item["id"], item["title"], item["url"], item["competitor"], url_norm, item.get("published", ""))
 
         # URL-based dedup: same article reposted by multiple sources
         if url_norm in recent_url_norms:
@@ -140,7 +170,7 @@ def run():
 
         tier = item.get("tier", 1)
 
-        # A2/A3: keyword + competitor filters
+        # Tier-2 only: keyword + competitor mention filters (cost control for broad industry feeds)
         if tier == 2:
             if not is_worth_analyzing(item):
                 print(f"[SKIP-KW]    {item['title'][:70]}")
@@ -148,10 +178,7 @@ def run():
             if not has_competitor_mention(item):
                 print(f"[SKIP-TIER2] {item['title'][:70]}")
                 continue
-        else:
-            if not is_worth_analyzing(item):
-                print(f"[SKIP-KW]    {item['title'][:70]}")
-                continue
+        # Tier-1 competitor sources: bypass keyword filter — Claude decides relevance
 
         # Stage-1: AI title filter for tier-2 (adds smart relevance on top of keywords)
         if tier == 2:
@@ -190,19 +217,113 @@ def run():
                   f"cost=${cost:.5f} | {item['title'][:55]}")
 
             if worth and score >= threshold:
-                uid = save_pending(item["id"], insight, cost_usd=cost)
-                print(f"    -> Saved (id={uid})")
-                saved += 1
+                if dry_run:
+                    print(f"    -> [DRY-RUN] Would save (score={score})")
+                else:
+                    uid = save_pending(item["id"], insight, cost_usd=cost)
+                    print(f"    -> Saved (id={uid})")
+                    saved += 1
 
-                if SLACK_ENABLED:
-                    from src.delivery import post_insight
-                    post_insight(insight)
+                    if SLACK_ENABLED:
+                        from src.delivery import post_insight
+                        post_insight(insight)
 
     total_cost = filter_cost + analysis_cost
     print(f"\n[DONE] Saved {saved} insights | "
           f"Total API cost: ${total_cost:.4f} "
           f"(filter=${filter_cost:.4f}, analysis=${analysis_cost:.4f})")
 
+    run_auto_scoring(dry_run=dry_run)
+
+    # Flush API call log to DB and print cache efficiency summary
+    logged = list(_call_log)
+    _call_log.clear()
+    for entry in logged:
+        log_api_call(
+            stage=entry["stage"],
+            batch_size=entry["batch_size"],
+            input_tokens=entry["input_tokens"],
+            output_tokens=entry["output_tokens"],
+            cache_read_tokens=entry["cache_read_tokens"],
+            cost_usd=entry["cost_usd"],
+        )
+    total_in = sum(e["input_tokens"] for e in logged)
+    total_cr = sum(e["cache_read_tokens"] for e in logged)
+    total_cw = sum(e.get("cache_creation_tokens", 0) for e in logged)
+    if total_in + total_cr + total_cw > 0:
+        hit_pct = 100 * total_cr / (total_in + total_cr + total_cw)
+        print(f"[CACHE] read={total_cr:,} write={total_cw:,} uncached={total_in:,} "
+              f"({hit_pct:.0f}% cache-hit rate)")
+
+
+def _chunks(lst, n):
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
+
+
+def run_auto_scoring(dry_run: bool = False):
+    """Second-pass scoring: score recent unseen feed items with Claude and auto-suggest/discard."""
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        print("[AUTO-SCORE] No ANTHROPIC_API_KEY — skipping.")
+        return
+
+    if get_setting("auto_scoring_enabled", default="true") == "false":
+        print("[AUTO-SCORE] Disabled via settings — skipping.")
+        return
+
+    inbox_threshold = int(get_setting("auto_inbox_threshold", default="9"))
+    discard_threshold = int(get_setting("auto_discard_threshold", default="4"))
+
+    items = get_unscored_recent_items(days=7, limit=50)
+    if not items:
+        print("[AUTO-SCORE] No unscored items in last 7 days.")
+        return
+
+    print(f"[AUTO-SCORE] Scoring {len(items)} items "
+          f"(inbox≥{inbox_threshold}, discard≤{discard_threshold})")
+
+    suggested = discarded = skipped = 0
+    for batch in _chunks(items, BATCH_SIZE):
+        # Build item dicts compatible with analyze_batch
+        batch_items = [
+            {
+                "id": r["id"],
+                "title": r["title"] or "",
+                "url": r["url"] or "",
+                "competitor": r["competitor"] or "",
+                "content": "",
+            }
+            for r in batch
+        ]
+        results = analyze_batch(batch_items)
+        for item, (insight, cost) in zip(batch, results):
+            if insight is None:
+                skipped += 1
+                continue
+            score = insight.get("score", 0)
+            if score >= inbox_threshold:
+                if not dry_run:
+                    save_pending(item["id"], insight, cost_usd=cost,
+                                 status="suggested", auto_scored=True)
+                suggested += 1
+                print(f"  [SUGGEST] score={score} | {item['title'][:60]}")
+            else:
+                if not dry_run:
+                    save_pending(item["id"], insight, cost_usd=cost,
+                                 status="discarded", auto_scored=True)
+                discarded += 1
+
+    print(f"[AUTO-SCORE] Done — {suggested} suggested, {discarded} auto-discarded, {skipped} errors")
+
 
 if __name__ == "__main__":
-    run()
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--limit", type=int, default=None,
+                        help="Max number of sources to process")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="Score articles but do not save to DB or post to Slack")
+    parser.add_argument("--fresh", action="store_true",
+                        help="Use a throwaway DB (data/dry_run.db) — treats all items as new")
+    args = parser.parse_args()
+    run(limit=args.limit, dry_run=args.dry_run, fresh=args.fresh)

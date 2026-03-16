@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSources, addCompetitorSource, addIndustrySource } from "@/lib/sources";
-import { getSourceFetchLog } from "@/lib/db";
+import { getSources, addCompetitorSource, addIndustrySource, setAllSourcesEnabled, getAllSourcesDisabled } from "@/lib/sources";
+import { getSourceFetchLog, getSourceHealthLog } from "@/lib/db";
 
 export async function GET() {
   try {
     const sources = getSources();
     const fetchLog = getSourceFetchLog();
-    return NextResponse.json({ ...sources, fetchLog });
+    const healthLog = getSourceHealthLog();
+    return NextResponse.json({ ...sources, fetchLog, healthLog });
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 500 });
   }
@@ -30,6 +31,19 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ ok: true });
+  } catch (e) {
+    return NextResponse.json({ error: String(e) }, { status: 500 });
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    const { enabled } = await request.json();
+    if (typeof enabled !== "boolean") {
+      return NextResponse.json({ error: "enabled must be a boolean" }, { status: 400 });
+    }
+    setAllSourcesEnabled(enabled);
+    return NextResponse.json({ ok: true, allDisabled: getAllSourcesDisabled() });
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 500 });
   }

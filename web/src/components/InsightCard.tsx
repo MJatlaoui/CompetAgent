@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
+import { Bot, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,7 @@ const STATUS_STYLES: Record<string, string> = {
   discarded:    "text-red-600 border-red-400",
   seen:         "text-blue-600 border-blue-400",
   saved_offline:"text-indigo-600 border-indigo-400",
+  suggested:    "text-violet-600 border-violet-400",
 };
 
 interface InsightCardProps {
@@ -114,6 +115,11 @@ export function InsightCard({
                   <span className={`text-xs border rounded-full px-2 py-0.5 ${statusCls}`}>
                     {insight.status}
                   </span>
+                  {insight.autoScored && (
+                    <span className="inline-flex items-center gap-1 text-xs font-medium bg-violet-50 text-violet-600 border border-violet-200 px-1.5 py-0.5 rounded-full">
+                      <Bot className="w-3 h-3" /> AI
+                    </span>
+                  )}
                   {insight.status === "approved" && insight.sheetsSynced === false && (
                     <span className="text-xs text-amber-600 border border-amber-400 rounded-full px-2 py-0.5">
                       Sheets sync failed
@@ -138,7 +144,7 @@ export function InsightCard({
 
               {/* Right: CTA + primary action + toggle */}
               <div className="flex items-center gap-2 shrink-0">
-                {showActions && onStatusChange && (insight.status === "pending" || insight.status === "review") && (
+                {showActions && onStatusChange && (insight.status === "pending" || insight.status === "review" || insight.status === "suggested") && (
                   <button
                     className="text-xs text-gray-400 hover:text-red-600 px-2 py-1 rounded hover:bg-red-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={(e) => { e.stopPropagation(); act("archive-inline", "discarded"); }}
@@ -156,7 +162,7 @@ export function InsightCard({
                 >
                   Read →
                 </a>
-                {showActions && onStatusChange && (insight.status === "pending" || insight.status === "review") && (
+                {showActions && onStatusChange && (insight.status === "pending" || insight.status === "review" || insight.status === "suggested") && (
                   <Button
                     size="sm"
                     className="bg-green-600 hover:bg-green-700 text-xs"

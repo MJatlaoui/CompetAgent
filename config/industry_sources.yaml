@@ -5,12 +5,14 @@ industry_sources:
       - type: rss
         url: https://www.cxtoday.com/feed/
     name: CX Today
+    refresh_hours: 0.25
   - category: CCaaS / UCaaS
     tier: 1
     feeds:
       - type: rss
         url: https://www.nojitter.com/rss.xml
     name: No Jitter
+    refresh_hours: 0.25
   - category: Contact Center Ops
     tier: 1
     feeds:
@@ -29,12 +31,14 @@ industry_sources:
       - type: rss
         url: https://martech.org/feed/
     name: MarTech
+    disabled: true
   - category: MarTech / CX Adjacent
     tier: 2
     feeds:
       - type: rss
         url: https://www.martechseries.com/feed/
     name: MarTech Series
+    disabled: true
   - category: CX
     tier: 1
     feeds:
@@ -53,60 +57,70 @@ industry_sources:
       - type: rss
         url: https://venturebeat.com/category/ai/feed/
     name: VentureBeat AI
+    disabled: true
   - category: AI / Startups
     tier: 2
     feeds:
       - type: rss
         url: https://techcrunch.com/category/artificial-intelligence/feed/
     name: TechCrunch AI
+    disabled: true
   - category: AI / Enterprise Tech
     tier: 2
     feeds:
       - type: rss
         url: https://www.zdnet.com/topic/artificial-intelligence/rss.xml
     name: ZDNET AI
+    disabled: true
   - category: AI / Tech
     tier: 2
     feeds:
       - type: rss
         url: https://feeds.arstechnica.com/arstechnica/technology-lab
     name: Ars Technica
+    disabled: true
   - category: AI / Enterprise IT
     tier: 2
     feeds:
       - type: rss
         url: https://www.theregister.com/headlines.atom
     name: The Register
+    disabled: true
   - category: Tech / AI
     tier: 2
     feeds:
       - type: rss
         url: https://www.wired.com/feed/category/business/latest/rss
     name: Wired Business
+    disabled: true
   - category: AI
     tier: 2
     feeds:
       - type: rss
         url: https://www.technologyreview.com/feed/
     name: MIT Tech Review AI
+    disabled: true
   - category: AI / Engineering
     tier: 2
     feeds:
       - type: rss
         url: https://spectrum.ieee.org/feeds/feed.rss
     name: IEEE Spectrum
+    disabled: true
   - category: AI
     tier: 2
     feeds:
       - type: rss
         url: https://blog.google/technology/ai/rss/
     name: Google AI Blog
+    disabled: true
   - category: AI
     tier: 2
     feeds:
       - type: rss
         url: https://blogs.microsoft.com/ai/feed/
     name: Microsoft AI Blog
+    disabled: true
   - category: CRM
     tier: 1
     feeds:
@@ -131,18 +145,21 @@ industry_sources:
       - type: rss
         url: https://www.zoho.com/blog/feed/
     name: Zoho Blog
+    disabled: true
   - category: CRM
     tier: 2
     feeds:
       - type: rss
         url: https://www.sugarcrm.com/blog/feed/
     name: SugarCRM Blog
+    disabled: true
   - category: eCom Support
     tier: 2
     feeds:
       - type: rss
         url: https://www.gorgias.com/blog/rss.xml
     name: Gorgias Blog
+    disabled: true
   - category: CCaaS
     tier: 1
     feeds:
@@ -167,6 +184,7 @@ industry_sources:
       - type: rss
         url: https://sinch.com/blog/feed/
     name: Sinch Blog
+    disabled: true
   - category: CCaaS
     tier: 1
     feeds:
@@ -179,24 +197,28 @@ industry_sources:
       - type: rss
         url: https://cloudblog.withgoogle.com/products/ai-machine-learning/rss/
     name: Google Cloud AI Blog
+    disabled: true
   - category: Cloud AI
     tier: 2
     feeds:
       - type: rss
         url: https://azure.microsoft.com/en-us/blog/feed/
     name: Microsoft Azure Blog
+    disabled: true
   - category: Security / Perf
     tier: 2
     feeds:
       - type: rss
         url: https://blog.cloudflare.com/rss/
     name: Cloudflare Blog
+    disabled: true
   - category: UX
     tier: 2
     feeds:
       - type: rss
         url: https://www.nngroup.com/feed/rss/
     name: Nielsen Norman Group
+    disabled: true
   - category: Research
     tier: 1
     feeds:
@@ -211,7 +233,6 @@ industry_sources:
     name: CustomerThink
   - category: CRM / CCaaS
     tier: 1
-    disabled: true
     feeds:
       - type: rss
         url: https://www.destinationcrm.com/rss/Articles.aspx
@@ -242,29 +263,32 @@ industry_sources:
     name: Opus Research
   - category: CCaaS / VoIP
     tier: 2
-    disabled: true
     feeds:
       - type: rss
         url: https://getvoip.com/blog/feed/
     name: GetVoIP
+    disabled: true
   - category: AI
     tier: 2
     feeds:
       - type: rss
         url: https://openai.com/blog/rss.xml
     name: OpenAI Blog
+    disabled: true
   - category: AI / Open Source
     tier: 2
     feeds:
       - type: rss
         url: https://huggingface.co/blog/feed.xml
     name: Hugging Face Blog
+    disabled: true
   - category: Cloud AI
     tier: 2
     feeds:
       - type: rss
         url: https://aws.amazon.com/blogs/machine-learning/feed/
     name: AWS Machine Learning Blog
+    disabled: true
   - name: TalkingPointz
     category: UCaaS / CCaaS Analyst
     tier: 1
@@ -274,7 +298,6 @@ industry_sources:
   - name: BCStrategies
     category: UCaaS / CCaaS Analyst
     tier: 1
-    disabled: true
     feeds:
       - type: rss
         url: https://www.bcstrategies.com/feed
@@ -308,19 +331,21 @@ industry_sources:
     feeds:
       - type: rss
         url: https://hyken.com/feed/
+    disabled: true
   - name: Adrian Swinscoe
     category: CX Thought Leadership
     tier: 2
     feeds:
       - type: rss
         url: https://www.adrianswinscoe.com/feed/
+    disabled: true
   - name: Brent Leary CRM Essentials
     category: CRM Analyst
     tier: 2
-    disabled: true
     feeds:
       - type: rss
         url: https://crm-essentials.com/feed/
+    disabled: true
   - name: CX Dive
     category: CX News
     tier: 1
@@ -339,6 +364,7 @@ industry_sources:
     feeds:
       - type: rss
         url: https://www.mycustomer.com/rss.xml
+    disabled: true
   - name: CCW Digital
     category: Contact Center Ops
     tier: 1
@@ -355,56 +381,61 @@ industry_sources:
   - name: Speech Technology Magazine
     category: Speech / IVR / AI
     tier: 2
-    disabled: true
     feeds:
       - type: rss
         url: https://www.speechtechmag.com/rss/Articles.aspx
+    disabled: true
   - name: SaaStr Blog
     category: SaaS / GTM
     tier: 2
     feeds:
       - type: rss
         url: https://www.saastr.com/feed/
+    disabled: true
   - name: Diginomica
     category: Enterprise Tech / CX
     tier: 2
     feeds:
       - type: rss
         url: https://diginomica.com/feed
+    disabled: true
   - name: The New Stack
     category: DevOps / APIs / AI
     tier: 2
     feeds:
       - type: rss
         url: https://thenewstack.io/feed/
+    disabled: true
   - name: Benedict Evans
     category: Tech / Macro Trends
     tier: 2
     feeds:
       - type: rss
         url: https://www.ben-evans.com/benedictevans/rss.xml
+    disabled: true
   - name: Stratechery
     category: Tech Strategy
     tier: 2
     feeds:
       - type: rss
         url: https://stratechery.com/feed/
+    disabled: true
   - name: r/contactcenter
     category: Contact Center Ops
     tier: 2
     refresh_hours: 4
-    disabled: true
     feeds:
       - type: rss
         url: https://www.reddit.com/r/contactcenter/.rss
+    disabled: true
   - name: r/callcentre
     category: Contact Center Ops
     tier: 2
     refresh_hours: 4
-    disabled: true
     feeds:
       - type: rss
         url: https://www.reddit.com/r/callcentre/.rss
+    disabled: true
   - name: r/salesforce
     category: CRM / Salesforce
     tier: 2
@@ -412,6 +443,7 @@ industry_sources:
     feeds:
       - type: rss
         url: https://www.reddit.com/r/salesforce.rss
+    disabled: true
   - name: r/CustomerSuccess
     category: CX / CS
     tier: 2
@@ -419,6 +451,7 @@ industry_sources:
     feeds:
       - type: rss
         url: https://www.reddit.com/r/CustomerSuccess/.rss
+    disabled: true
   - name: r/artificial
     category: AI General
     tier: 3
@@ -426,6 +459,7 @@ industry_sources:
     feeds:
       - type: rss
         url: https://www.reddit.com/r/artificial/.rss
+    disabled: true
   - name: r/ChatGPT
     category: AI / LLM
     tier: 3
@@ -433,6 +467,7 @@ industry_sources:
     feeds:
       - type: rss
         url: https://www.reddit.com/r/ChatGPT/.rss
+    disabled: true
   - name: r/VoIP
     category: VoIP / Telecom
     tier: 3
@@ -440,6 +475,7 @@ industry_sources:
     feeds:
       - type: rss
         url: https://www.reddit.com/r/VoIP/.rss
+    disabled: true
   - name: Genesys Community
     category: CCaaS Community
     tier: 2
@@ -447,6 +483,7 @@ industry_sources:
       - type: html
         url: https://community.genesys.com/
         selector: h3 a, h2 a
+    disabled: true
   - name: NICE Community
     category: CCaaS Community
     tier: 2
@@ -454,6 +491,7 @@ industry_sources:
       - type: html
         url: https://community.niceincontact.com/
         selector: h3 a, h2 a
+    disabled: true
   - name: Hacker News CCaaS
     category: AI / Tech
     tier: 3
@@ -461,6 +499,7 @@ industry_sources:
     feeds:
       - type: rss
         url: https://hnrss.org/newest?q=contact+center+OR+customer+experience+OR+conversational+AI
+    disabled: true
   - name: Seeking Alpha ZM
     category: Financial / ZM
     tier: 1
@@ -485,12 +524,14 @@ industry_sources:
     feeds:
       - type: rss
         url: https://seekingalpha.com/api/sa/combined/RNG.xml
+    disabled: true
   - name: Seeking Alpha TWLO
     category: Financial / TWLO
     tier: 2
     feeds:
       - type: rss
         url: https://seekingalpha.com/api/sa/combined/TWLO.xml
+    disabled: true
   - name: Seeking Alpha CRM
     category: Financial / CRM
     tier: 1
@@ -503,33 +544,35 @@ industry_sources:
     feeds:
       - type: rss
         url: https://seekingalpha.com/api/sa/combined/CXM.xml
+    disabled: true
   - name: CX Leader Podcast
     category: CX Thought Leadership
     tier: 2
-    disabled: true
     feeds:
       - type: rss
         url: https://feeds.simplecast.com/fgIKgwGb
+    disabled: true
   - name: Amazing Business Radio
     category: CX Thought Leadership
     tier: 2
-    disabled: true
     feeds:
       - type: rss
         url: https://amazingbusinessradio.libsyn.com/rss
+    disabled: true
   - name: Conversations That Matter NICE
     category: CCaaS / AI
     tier: 2
-    disabled: true
     feeds:
       - type: rss
         url: https://feeds.buzzsprout.com/1934879.rss
+    disabled: true
   - name: Emerj AI in Business
     category: AI Enterprise
     tier: 2
     feeds:
       - type: rss
         url: https://emerj.com/feed/
+    disabled: true
   - name: This Week in Voice
     category: Voice AI
     tier: 2
@@ -537,22 +580,25 @@ industry_sources:
       - type: html
         url: https://thisweekinvoice.com/
         selector: h2 a, h3 a
+    disabled: true
   - name: Lenny's Newsletter
     category: Product / Growth
     tier: 2
     feeds:
       - type: rss
         url: https://www.lennysnewsletter.com/feed
+    disabled: true
   - name: AI Breakfast
     category: AI Digest
     tier: 3
-    disabled: true
     feeds:
       - type: rss
         url: https://aibreakfast.beehiiv.com/feed
+    disabled: true
   - name: TLDR AI
     category: AI Digest
     tier: 2
     feeds:
       - type: rss
         url: https://tldr.tech/api/rss/ai
+    disabled: true

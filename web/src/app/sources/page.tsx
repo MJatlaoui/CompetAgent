@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Trash2, Plus, Rss, Globe, ChevronDown, ChevronUp, Clock, Download, Upload, FlaskConical, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { Bot, Trash2, Plus, Rss, Globe, ChevronDown, ChevronUp, Clock, Download, Upload, FlaskConical, CheckCircle2, XCircle, Loader2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import type { CompetitorSource, IndustrySource, Feed } from "@/lib/sources";
+import { DisableAllButton } from "@/components/DisableAllButton";
 
 const REFRESH_OPTIONS = [
   { label: "15 min", value: 0.25 },
@@ -23,6 +24,8 @@ const REFRESH_OPTIONS = [
 type FeedTestResult = { url: string; ok: boolean; status?: number; error?: string };
 type SourceTestResult = { ok: boolean; feeds: FeedTestResult[] };
 type TestMap = Record<string, SourceTestResult>;
+type HealthStatus = { lastError: string | null; lastErrorAt: string | null; consecutiveFailures: number };
+type HealthLog = Record<string, HealthStatus>;
 
 function formatRelative(isoStr: string | undefined): string {
   if (!isoStr) return "never";
@@ -75,6 +78,18 @@ function TestBadge({ result, testing }: { result: SourceTestResult | undefined; 
   if (result.ok) return <span title="All feeds reachable"><CheckCircle2 className="w-4 h-4 text-green-500" /></span>;
   const err = result.feeds.find((f) => !f.ok)?.error ?? "Failed";
   return <span title={err}><XCircle className="w-4 h-4 text-red-500" /></span>;
+}
+
+// ─── Health badge ─────────────────────────────────────────────────────────────
+function HealthBadge({ health }: { health: HealthStatus | undefined }) {
+  if (!health || health.consecutiveFailures === 0) return null;
+  const color = health.consecutiveFailures >= 3 ? "text-red-500" : "text-yellow-500";
+  const tooltip = `${health.consecutiveFailures}x consecutive failure${health.consecutiveFailures > 1 ? "s" : ""}: ${health.lastError ?? "unknown error"}`;
+  return (
+    <span title={tooltip}>
+      <AlertTriangle className={cn("w-4 h-4 shrink-0", color)} />
+    </span>
+  );
 }
 
 // ─── Feed pill ────────────────────────────────────────────────────────────────
@@ -147,10 +162,11 @@ function RefreshSelector({
 
 // ─── Competitor card ──────────────────────────────────────────────────────────
 function CompetitorCard({
-  source, lastFetched, testResult, testing, onRemove, onToggle, onRefresh,
+  source, lastFetched, testResult, testing, healthStatus, onRemove, onToggle, onRefresh,
 }: {
   source: CompetitorSource; lastFetched: string | undefined;
   testResult: SourceTestResult | undefined; testing: boolean;
+  healthStatus: HealthStatus | undefined;
   onRemove: (name: string) => void; onToggle: (name: string, enabled: boolean) => void;
   onRefresh: () => void;
 }) {
@@ -165,6 +181,7 @@ function CompetitorCard({
           <Toggle enabled={enabled} onChange={(v) => onToggle(source.name, v)} />
           <span className="font-semibold text-gray-900 text-sm">{source.name}</span>
           <span className="text-xs text-gray-400">{source.feeds.length} feed{source.feeds.length !== 1 ? "s" : ""}</span>
+          <HealthBadge health={healthStatus} />
           <TestBadge result={testResult} testing={testing} />
         </div>
         <div className="flex items-center gap-1">
@@ -190,10 +207,11 @@ function CompetitorCard({
 
 // ─── Industry card ────────────────────────────────────────────────────────────
 function IndustryCard({
-  source, lastFetched, testResult, testing, onRemove, onToggle, onRefresh,
+  source, lastFetched, testResult, testing, healthStatus, onRemove, onToggle, onRefresh,
 }: {
   source: IndustrySource; lastFetched: string | undefined;
   testResult: SourceTestResult | undefined; testing: boolean;
+  healthStatus: HealthStatus | undefined;
   onRemove: (name: string) => void; onToggle: (name: string, enabled: boolean) => void;
   onRefresh: () => void;
 }) {
@@ -211,6 +229,7 @@ function IndustryCard({
           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${source.tier === 1 ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-500"}`}>
             Tier {source.tier}
           </span>
+          <HealthBadge health={healthStatus} />
           <TestBadge result={testResult} testing={testing} />
         </div>
         <div className="flex items-center gap-1 shrink-0">
@@ -334,6 +353,7 @@ export default function SourcesPage() {
   const [competitors, setCompetitors] = useState<CompetitorSource[]>([]);
   const [industry, setIndustry] = useState<IndustrySource[]>([]);
   const [fetchLog, setFetchLog] = useState<Record<string, string>>({});
+  const [healthLog, setHealthLog] = useState<HealthLog>({});
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
   const [importMsg, setImportMsg] = useState<{ text: string; ok: boolean } | null>(null);
@@ -345,11 +365,25 @@ export default function SourcesPage() {
   const [testSummary, setTestSummary] = useState<{ ok: number; fail: number } | null>(null);
   const [scoreThreshold, setScoreThreshold] = useState<number>(7);
   const [thresholdSaving, setThresholdSaving] = useState(false);
+  const [autoScoringEnabled, setAutoScoringEnabled] = useState(true);
+  const [autoInboxThreshold, setAutoInboxThreshold] = useState(9);
+  const [autoDiscardThreshold, setAutoDiscardThreshold] = useState(4);
+  const [autoSettingsSaving, setAutoSettingsSaving] = useState(false);
 
   useEffect(() => {
     fetch("/api/settings?key=ingestion_paused")
       .then((r) => r.json())
       .then((d) => setPaused(d.value === "true"));
+    // Load auto-scoring settings
+    Promise.all([
+      fetch("/api/settings?key=auto_scoring_enabled").then((r) => r.json()),
+      fetch("/api/settings?key=auto_inbox_threshold").then((r) => r.json()),
+      fetch("/api/settings?key=auto_discard_threshold").then((r) => r.json()),
+    ]).then(([en, inbox, discard]) => {
+      if (en.value !== null) setAutoScoringEnabled(en.value !== "false");
+      if (inbox.value !== null) setAutoInboxThreshold(Number(inbox.value));
+      if (discard.value !== null) setAutoDiscardThreshold(Number(discard.value));
+    });
   }, []);
 
   useEffect(() => {
@@ -372,6 +406,16 @@ export default function SourcesPage() {
       body: JSON.stringify({ key: "score_threshold", value: String(clamped) }),
     });
     setThresholdSaving(false);
+  }
+
+  async function saveAutoSetting(key: string, value: string) {
+    setAutoSettingsSaving(true);
+    await fetch("/api/settings", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key, value }),
+    });
+    setAutoSettingsSaving(false);
   }
 
   async function togglePause() {
@@ -413,6 +457,7 @@ export default function SourcesPage() {
     setCompetitors(data.competitors ?? []);
     setIndustry(data.industry ?? []);
     setFetchLog(data.fetchLog ?? {});
+    setHealthLog(data.healthLog ?? {});
     setLoading(false);
   }
 
@@ -470,6 +515,7 @@ export default function SourcesPage() {
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0 mt-1">
+          <DisableAllButton />
           <Button
             variant="outline"
             size="sm"
@@ -511,7 +557,7 @@ export default function SourcesPage() {
 
       {/* Ingestion Pipeline toggle */}
       {paused !== null && (
-        <div className="flex items-center justify-between px-4 py-3 rounded-lg border mb-3 bg-white">
+        <div className="flex items-center justify-between px-4 py-3 rounded-lg border mb-4 bg-white">
           <div className="flex items-center gap-3">
             <span className="text-sm font-semibold text-gray-800">Ingestion Pipeline</span>
             {paused
@@ -532,7 +578,7 @@ export default function SourcesPage() {
       )}
 
       {/* Score Threshold setting */}
-      <div className="flex items-center justify-between px-4 py-3 rounded-lg border mb-6 bg-white">
+      <div className="flex items-center justify-between px-4 py-3 rounded-lg border mb-3 bg-white">
         <div>
           <span className="text-sm font-semibold text-gray-800">Score Threshold</span>
           <p className="text-xs text-gray-500 mt-0.5">Minimum score (1–10) for insights to appear in the Inbox</p>
@@ -550,6 +596,62 @@ export default function SourcesPage() {
             className="w-16 text-center text-sm border border-gray-200 rounded px-2 py-1 bg-white text-gray-800 focus:outline-none focus:border-blue-400"
           />
           {thresholdSaving && <span className="text-xs text-blue-500">Saving…</span>}
+        </div>
+      </div>
+
+      {/* Auto-Scoring settings panel */}
+      <div className="rounded-lg border mb-6 bg-white overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-3 border-b">
+          <div className="flex items-center gap-2">
+            <Bot className="w-4 h-4 text-violet-500" />
+            <span className="text-sm font-semibold text-gray-800">Auto-Scoring</span>
+            {autoScoringEnabled
+              ? <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-violet-100 text-violet-700 border border-violet-200">ENABLED</span>
+              : <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 border border-gray-200">DISABLED</span>
+            }
+          </div>
+          <Toggle
+            enabled={autoScoringEnabled}
+            onChange={(v) => { setAutoScoringEnabled(v); saveAutoSetting("auto_scoring_enabled", v ? "true" : "false"); }}
+          />
+        </div>
+        <div className={`px-4 py-3 grid grid-cols-1 sm:grid-cols-2 gap-4 ${!autoScoringEnabled ? "opacity-50 pointer-events-none" : ""}`}>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Inbox threshold</label>
+            <div className="flex items-center gap-2">
+              <select
+                value={autoInboxThreshold}
+                onChange={(e) => { const v = Number(e.target.value); setAutoInboxThreshold(v); saveAutoSetting("auto_inbox_threshold", String(v)); }}
+                disabled={autoSettingsSaving}
+                className="text-sm border border-gray-200 rounded px-2 py-1 bg-white text-gray-700 focus:outline-none focus:border-violet-400"
+              >
+                {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+              </select>
+              <span className="text-xs text-gray-400">Items scoring ≥ this appear in the Suggested inbox</span>
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Discard threshold</label>
+            <div className="flex items-center gap-2">
+              <select
+                value={autoDiscardThreshold}
+                onChange={(e) => { const v = Number(e.target.value); setAutoDiscardThreshold(v); saveAutoSetting("auto_discard_threshold", String(v)); }}
+                disabled={autoSettingsSaving}
+                className="text-sm border border-gray-200 rounded px-2 py-1 bg-white text-gray-700 focus:outline-none focus:border-violet-400"
+              >
+                {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+              </select>
+              <span className="text-xs text-gray-400">Items scoring ≤ this are auto-discarded</span>
+            </div>
+          </div>
+          <div className="sm:col-span-2 text-xs text-gray-400">
+            Scores recent unscored feed items (last 7 days, up to 50 per run). High-signal items surface with a violet AI badge in the inbox.
+            {autoSettingsSaving && <span className="ml-2 text-violet-500">Saving…</span>}
+          </div>
         </div>
       </div>
 
@@ -585,6 +687,7 @@ export default function SourcesPage() {
                   lastFetched={fetchLog[src.name]}
                   testResult={testResults[src.name]}
                   testing={testing}
+                  healthStatus={healthLog[src.name]}
                   onRemove={removeCompetitor}
                   onToggle={(name, enabled) => toggleSource("competitor", name, enabled)}
                   onRefresh={fetchSources}
@@ -615,6 +718,7 @@ export default function SourcesPage() {
                   lastFetched={fetchLog[src.name]}
                   testResult={testResults[src.name]}
                   testing={testing}
+                  healthStatus={healthLog[src.name]}
                   onRemove={removeIndustry}
                   onToggle={(name, enabled) => toggleSource("industry", name, enabled)}
                   onRefresh={fetchSources}

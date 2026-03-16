@@ -11,6 +11,24 @@ import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
 const LIMIT = 20;
 
+function ScoringPlaceholderCard({ insight }: { insight: Insight }) {
+  return (
+    <div className="bg-white rounded-lg border border-blue-200 p-4 mb-3 flex items-center gap-3 animate-pulse">
+      <svg className="h-5 w-5 text-blue-400 shrink-0 animate-spin" viewBox="0 0 24 24" fill="none">
+        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+      </svg>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-gray-700 truncate">
+          {insight.competitor && <span className="text-blue-600 mr-2">{insight.competitor}</span>}
+          {insight.headline || "Untitled"}
+        </p>
+        <p className="text-xs text-gray-400 mt-0.5">Scoring with Claude…</p>
+      </div>
+    </div>
+  );
+}
+
 export default function ReviewPage() {
   const [insights, setInsights] = useState<Insight[]>([]);
   const [total, setTotal] = useState(0);
@@ -50,8 +68,7 @@ export default function ReviewPage() {
   useEffect(() => {
     fetch_(0);
     setOffset(0);
-    const timer = setInterval(() => fetch_(0), 60_000);
-    return () => clearInterval(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -62,6 +79,14 @@ export default function ReviewPage() {
 
   // Reset focusedIndex when insights change
   useEffect(() => { setFocusedIndex(0); }, [insights]);
+
+  const hasScoringItems = insights.some((i) => i.status === "scoring");
+  useEffect(() => {
+    const interval = hasScoringItems ? 3_000 : 60_000;
+    const timer = setInterval(() => fetch_(0), interval);
+    return () => clearInterval(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasScoringItems]);
 
   function handleSearch() { setOffset(0); fetch_(0); }
 
@@ -288,19 +313,23 @@ export default function ReviewPage() {
         </div>
       ) : (
         <>
-          {insights.map((insight, idx) => (
-            <InsightCard
-              key={insight.id}
-              insight={insight}
-              onStatusChange={handleStatusChange}
-              onTagsChange={handleTagsChange}
-              onNotesChange={handleNotesChange}
-              selected={selectedIds.has(insight.id)}
-              onSelect={handleSelect}
-              focused={focusedIndex === idx}
-              forceExpanded={expandedIds.has(insight.id)}
-            />
-          ))}
+          {insights.map((insight, idx) =>
+            insight.status === "scoring" ? (
+              <ScoringPlaceholderCard key={insight.id} insight={insight} />
+            ) : (
+              <InsightCard
+                key={insight.id}
+                insight={insight}
+                onStatusChange={handleStatusChange}
+                onTagsChange={handleTagsChange}
+                onNotesChange={handleNotesChange}
+                selected={selectedIds.has(insight.id)}
+                onSelect={handleSelect}
+                focused={focusedIndex === idx}
+                forceExpanded={expandedIds.has(insight.id)}
+              />
+            )
+          )}
           {total > LIMIT && (
             <div className="flex items-center gap-2 mt-4">
               <Button variant="outline" disabled={offset === 0} onClick={() => goTo(Math.max(0, offset - LIMIT))}>Previous</Button>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import type { SeenItem } from "@/lib/types";
@@ -92,6 +93,15 @@ export default function IngestedPage() {
   const [offset, setOffset] = useState(0);
   const [exporting, setExporting] = useState(false);
   const [exportMsg, setExportMsg] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshMsg, setRefreshMsg] = useState("");
+
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [scoring, setScoring] = useState(false);
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [sortBy, setSortBy] = useState<"added" | "published">("added");
+  const router = useRouter();
+
   const limit = 100;
 
   useEffect(() => {
@@ -103,7 +113,7 @@ export default function IngestedPage() {
   async function fetchItems(resetOffset = false) {
     const currentOffset = resetOffset ? 0 : offset;
     setLoading(true);
-    const params = new URLSearchParams({ limit: String(limit), offset: String(currentOffset) });
+    const params = new URLSearchParams({ limit: String(limit), offset: String(currentOffset), sortDir, sortBy });
     if (search) params.set("search", search);
     if (selectedSources.length > 0) params.set("sources", selectedSources.join(","));
     const res = await fetch(`/api/ingested?${params}`);
@@ -123,12 +133,24 @@ export default function IngestedPage() {
     fetchItems(true);
   }
 
-  // Re-fetch when source selection changes
   useEffect(() => {
     setOffset(0);
     fetchItems(true);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedSources]);
+  }, [selectedSources, sortDir, sortBy]);
+
+  async function handleRefresh() {
+    setRefreshing(true);
+    setRefreshMsg("");
+    try {
+      const res = await fetch("/api/ingest/refresh", { method: "POST" });
+      const data = await res.json();
+      setRefreshMsg(data.ok ? "Ingestion started — new items appear in ~30s" : `Error: ${data.error}`);
+    } catch (e: any) {
+      setRefreshMsg(`Error: ${e.message}`);
+    }
+    setRefreshing(false);
+  }
 
   async function handleExport() {
     setExporting(true);
@@ -147,12 +169,80 @@ export default function IngestedPage() {
     setExporting(false);
   }
 
+  function toggleSelect(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
+
+  function toggleSelectAll() {
+    if (items.every((item) => selectedIds.has(item.id))) {
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        items.forEach((item) => next.delete(item.id));
+        return next;
+      });
+    } else {
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        items.forEach((item) => next.add(item.id));
+        return next;
+      });
+    }
+  }
+
+  async function handleScore() {
+    const ids = Array.from(selectedIds);
+    setSelectedIds(new Set()); // close action bar immediately
+    setScoring(true);
+    try {
+      const res = await fetch("/api/seen-items/score", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        if (data.queued === 0) {
+          setRefreshMsg(`${ids.length} item(s) already in the inbox`);
+        } else {
+          router.push("/review");
+        }
+      }
+    } catch {
+      // ignore — user is redirected regardless
+    }
+    setScoring(false);
+  }
+
+  function getPublishedDate(item: SeenItem): { date: string; source: boolean } | null {
+    if (item.publishedAt) return { date: item.publishedAt, source: true };
+    const m = item.url?.match(/(\d{4}-\d{2}-\d{2})/);
+    if (m) return { date: m[1], source: true };
+    if (item.seenAt) return { date: item.seenAt, source: false };
+    return null;
+  }
+
+  const allPageSelected = items.length > 0 && items.every((item) => selectedIds.has(item.id));
+  const somePageSelected = items.some((item) => selectedIds.has(item.id));
+
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-bold">Raw Feed</h2>
         <div className="flex items-center gap-3">
-          {exportMsg && <span className="text-sm text-gray-600">{exportMsg}</span>}
+          {(refreshMsg || exportMsg) && (
+            <span className="text-sm text-gray-600">{refreshMsg || exportMsg}</span>
+          )}
+          <Button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            variant="outline"
+          >
+            {refreshing ? "Refreshing…" : "↻ Refresh Feed"}
+          </Button>
           <Button
             onClick={handleExport}
             disabled={exporting}
@@ -191,19 +281,71 @@ export default function IngestedPage() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b">
                 <tr>
+                  <th className="px-4 py-2 w-8">
+                    <input
+                      type="checkbox"
+                      checked={allPageSelected}
+                      ref={(el) => { if (el) el.indeterminate = somePageSelected && !allPageSelected; }}
+                      onChange={toggleSelectAll}
+                      className="rounded"
+                      aria-label="Select all on page"
+                    />
+                  </th>
                   <th className="text-left px-4 py-2 font-semibold text-gray-600 w-1/2">Title</th>
                   <th className="text-left px-4 py-2 font-semibold text-gray-600 w-32">Source</th>
+                  <th className="text-left px-4 py-2 font-semibold text-gray-600 w-20">Score</th>
                   <th className="text-left px-4 py-2 font-semibold text-gray-600">URL</th>
-                  <th className="text-left px-4 py-2 font-semibold text-gray-600 w-36">Seen At</th>
+                  <th className="px-4 py-2 font-semibold text-gray-600 w-28">
+                    <button
+                      type="button"
+                      onClick={() => { sortBy === "published" ? setSortDir((d) => d === "desc" ? "asc" : "desc") : (setSortBy("published"), setSortDir("desc")); }}
+                      className="flex items-center gap-1 hover:text-gray-900"
+                    >
+                      Published
+                      {sortBy === "published" && <span className="text-xs">{sortDir === "desc" ? "▼" : "▲"}</span>}
+                    </button>
+                  </th>
+                  <th className="px-4 py-2 font-semibold text-gray-600 w-36">
+                    <button
+                      type="button"
+                      onClick={() => { sortBy === "added" ? setSortDir((d) => d === "desc" ? "asc" : "desc") : (setSortBy("added"), setSortDir("desc")); }}
+                      className="flex items-center gap-1 hover:text-gray-900"
+                    >
+                      Added
+                      {sortBy === "added" && <span className="text-xs">{sortDir === "desc" ? "▼" : "▲"}</span>}
+                    </button>
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {items.map((item, i) => (
-                  <tr key={item.id} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                  <tr
+                    key={item.id}
+                    className={`${i % 2 === 0 ? "bg-white" : "bg-gray-50"} ${selectedIds.has(item.id) ? "ring-1 ring-inset ring-blue-300" : ""}`}
+                  >
+                    <td className="px-4 py-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(item.id)}
+                        onChange={() => toggleSelect(item.id)}
+                        className="rounded"
+                      />
+                    </td>
                     <td className="px-4 py-2 text-gray-900 max-w-0">
                       <span className="block truncate" title={item.title}>{item.title || "—"}</span>
                     </td>
                     <td className="px-4 py-2 text-gray-600">{item.competitor}</td>
+                    <td className="px-4 py-2 text-center">
+                      {item.insightStatus === "scoring" ? (
+                        <span className="text-xs text-gray-400 animate-pulse">…</span>
+                      ) : item.score != null ? (
+                        <span className={`text-xs font-semibold ${item.score >= 7 ? "text-green-700" : item.score >= 5 ? "text-amber-600" : "text-gray-400"}`}>
+                          {item.score}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-gray-300">—</span>
+                      )}
+                    </td>
                     <td className="px-4 py-2 max-w-0">
                       <a
                         href={item.url}
@@ -216,13 +358,18 @@ export default function IngestedPage() {
                       </a>
                     </td>
                     <td className="px-4 py-2 text-gray-500 whitespace-nowrap">
-                      {item.seenAt
-                        ? new Date(item.seenAt).toLocaleDateString(undefined, {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })
-                        : "—"}
+                      {(() => {
+                        const d = getPublishedDate(item);
+                        if (!d || !d.source) return <span className="text-gray-400">—</span>;
+                        return new Date(d.date).toLocaleDateString(undefined, {
+                          month: "short", day: "numeric", year: "numeric",
+                        });
+                      })()}
+                    </td>
+                    <td className="px-4 py-2 text-gray-500 whitespace-nowrap">
+                      {item.seenAt ? new Date(item.seenAt).toLocaleDateString(undefined, {
+                        month: "short", day: "numeric", year: "numeric",
+                      }) : "—"}
                     </td>
                   </tr>
                 ))}
@@ -250,6 +397,40 @@ export default function IngestedPage() {
             </Button>
           </div>
         </>
+      )}
+
+      {/* Floating action bar */}
+      {selectedIds.size > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3 rounded-full border bg-white px-5 py-3 shadow-lg z-50">
+          <span className="text-sm font-medium text-gray-700">
+            {selectedIds.size} selected
+          </span>
+          <Button
+            onClick={handleScore}
+            disabled={scoring}
+            className="rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-1.5 h-auto"
+          >
+            {scoring ? (
+              <span className="flex items-center gap-2">
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                </svg>
+                Scoring…
+              </span>
+            ) : (
+              "Score with Claude →"
+            )}
+          </Button>
+          <button
+            type="button"
+            onClick={() => setSelectedIds(new Set())}
+            className="text-gray-400 hover:text-gray-600 text-lg leading-none"
+            aria-label="Clear selection"
+          >
+            ✕
+          </button>
+        </div>
       )}
     </div>
   );
