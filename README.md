@@ -11,15 +11,16 @@ Automated competitive intelligence pipeline for **Zoom Contact Center** in the C
 3. [External services](#external-services)
 4. [Architecture overview](#architecture-overview)
 5. [Data flow — step by step](#data-flow--step-by-step)
-6. [Module reference](#module-reference)
-7. [Database schema](#database-schema)
-8. [Configuration files](#configuration-files)
-9. [Environment variables](#environment-variables)
-10. [CI/CD pipelines](#cicd-pipelines)
-11. [Web UI pages and API routes](#web-ui-pages-and-api-routes)
-12. [Running locally](#running-locally)
-13. [Running tests](#running-tests)
-14. [Known limitations](#known-limitations)
+6. [Scoring and review agent](#scoring-and-review-agent)
+7. [Module reference](#module-reference)
+8. [Database schema](#database-schema)
+9. [Configuration files](#configuration-files)
+10. [Environment variables](#environment-variables)
+11. [CI/CD pipelines](#cicd-pipelines)
+12. [Web UI pages and API routes](#web-ui-pages-and-api-routes)
+13. [Running locally](#running-locally)
+14. [Running tests](#running-tests)
+15. [Known limitations](#known-limitations)
 
 ---
 
@@ -212,7 +213,225 @@ The Next.js UI reads directly from `data/seen.db` using `better-sqlite3`. Analys
 
 ---
 
-## Module reference
+## Scoring and review agent
+
+The scoring agent is the core intelligence layer. It runs in two distinct modes: **automated** (triggered by CI every 2 hours via `src/main.py`) and **on-demand** (triggered by an analyst selecting items in the Feed page and clicking "Score with Claude →").
+
+Both modes ultimately call the same Claude Haiku functions in `src/intelligence.py`, but differ in how items are selected, how content is fetched, and what happens to the result.
+
+---
+
+### System prompt and scoring persona
+
+All Claude calls use `prompts/intel_filter.txt` as the system prompt. It instructs Claude to act as a **senior competitive intelligence analyst at Zoom**, specializing in the CCaaS market.
+
+The prompt defines:
+
+**Strategic lens** — Zoom's five key differentiators that Claude uses as the evaluation baseline:
+- Native Zoom platform integration
+- Deep Salesforce partnership (Service Cloud Voice, Einstein AI)
+- Zoom AI Companion (Expert Assist, Auto Summary, Quality Management)
+- Zoom Virtual Agent (ZVA) for self-service routing
+- Simpler deployment vs. legacy players (Genesys, NICE, Avaya)
+
+**Classification** — Claude must assign exactly one of six labels:
+
+| Label | When to use |
+|---|---|
+| `TECHNICAL_SHIFT` | New API, architecture change, or integration update — highest priority |
+| `FEATURE_LAUNCH` | Real, generally-available new feature or major enhancement |
+| `PRICING_CHANGE` | Packaging, licensing, or pricing model update |
+| `PARTNERSHIP` | New integration partner or technology alliance |
+| `MARKETING_NOISE` | Blog post, award, thought leadership with no new product substance |
+| `IRRELEVANT` | Off-topic or unrelated to CCaaS/CRM/AI |
+
+**Scoring rubric** — a 1–10 integer score based on competitive impact to Zoom:
+
+| Score | Meaning |
+|---|---|
+| 9–10 | Direct threat to a Zoom differentiator, or a major gap opened |
+| 7–8 | Relevant feature parity move or strategic partnership to respond to |
+| 5–6 | Worth monitoring, no immediate action needed |
+| 1–4 | Low signal, mostly noise |
+
+**Sub-scores** — five 0–100 dimensions Claude evaluates per article:
+
+| Key | Dimension | High when… |
+|---|---|---|
+| `f` | Factuality | Claims are specific and verifiable (version numbers, GA dates, pricing figures) |
+| `n` | Novelty | Genuinely first announcement, not a repackaged capability |
+| `a` | Authority | Official vendor press release or announcement |
+| `d` | Depth | Long technical content with substantial detail |
+| `s` | Threat Severity | Direct overlap with a named ZCC feature or differentiator |
+
+**Heat** (0–100) — a single urgency score combining novelty, threat severity, and recency, left to Claude's judgment.
+
+**`worth_surfacing`** — Claude sets this to `true` only when `score >= 7` AND classification is not `MARKETING_NOISE` or `IRRELEVANT`. It is the primary gate for whether an insight reaches the review queue.
+
+**Knowledge base injection** — if `prompts/zoom_knowledge.md` exists, its content is prepended to the system prompt before the first call. This file contains Zoom-specific product context (fetched via `src/fetch_zoom_kb.py`) that keeps Claude's competitive framing current without modifying the core prompt.
+
+---
+
+### Prompt caching
+
+The system prompt is large (~800 tokens including the knowledge base). To avoid paying full input price on every call, it is sent with `cache_control: {"type": "ephemeral"}` and the `anthropic-beta: prompt-caching-2024-07-31` header. After the first call in a session, subsequent calls read the prompt from the Anthropic cache at **$0.08/Mtok** instead of **$0.80/Mtok** — a ~10× cost reduction on the largest token block per call.
+
+Cost constants used for per-insight `cost_usd` tracking:
+```
+Regular input:  $0.80 / 1M tokens
+Output:         $4.00 / 1M tokens
+Cache write:    $1.00 / 1M tokens
+Cache read:     $0.08 / 1M tokens
+```
+
+At the end of each automated run, a cache efficiency summary is printed:
+```
+[CACHE] read=12,400 write=820 uncached=1,100 (88% cache-hit rate)
+```
+
+---
+
+### Automated scoring pipeline (`src/main.py`)
+
+This is the path taken when the CI job runs `python -m src.main` every 2 hours.
+
+```
+Fetch all due sources
+        │
+        ▼
+ ┌─ For each new item ──────────────────────────────────────────┐
+ │                                                              │
+ │  1. mark_seen() — always written to seen_items               │
+ │                                                              │
+ │  2. URL dedup — skip if same normalized URL seen in 30 days  │
+ │                                                              │
+ │  3. Title dedup — skip if SequenceMatcher ratio > 0.72       │
+ │     against titles seen in last 14 days                      │
+ │                                                              │
+ │  4. [Tier-2 only] Keyword filter — is_worth_analyzing()      │
+ │     Checks for CCaaS/AI/product terms in title+summary       │
+ │                                                              │
+ │  5. [Tier-2 only] Competitor mention — has_competitor_mention()│
+ │     At least one known competitor name in title+summary      │
+ │                                                              │
+ │  6. [Tier-2 only] Stage-1 AI filter — quick_filter()         │
+ │     Single Claude call, max_tokens=20, no system prompt cache│
+ │     Returns {"relevant": true/false}. Cost: ~$0.00005/item   │
+ │     Fails open (returns True) on any API error               │
+ │                                                              │
+ │  [Tier-1 competitor sources skip steps 4–6 entirely]         │
+ │                                                              │
+ └──────────────────────────────────────────────────────────────┘
+        │
+        ▼  items that passed all filters
+ ┌─ Batched Stage-2 analysis ───────────────────────────────────┐
+ │                                                              │
+ │  Group into batches of 5 (BATCH_SIZE)                        │
+ │                                                              │
+ │  For each batch → analyze_batch():                           │
+ │    • Pack all articles into a single user message            │
+ │    • Send with cached system prompt                          │
+ │    • Claude returns a JSON array, one object per article     │
+ │    • _derive_fields() injects competitor, source_url,        │
+ │      source_type — metadata already known, not read by Claude│
+ │    • cost split evenly across items in the batch             │
+ │                                                              │
+ │  For each insight:                                           │
+ │    if worth_surfacing=true AND score >= threshold            │
+ │      → save_pending() → status="pending"                     │
+ │      → optionally post to Slack                              │
+ │                                                              │
+ └──────────────────────────────────────────────────────────────┘
+        │
+        ▼
+ Auto-scoring second pass: run_auto_scoring()
+ (see below)
+```
+
+**Tier-1 vs tier-2 treatment** — the two-stage filter only applies to industry publications (tier-2). Direct competitor sources (tier-1, e.g. Genesys Blog, Salesforce) bypass the keyword and quick-filter steps and go straight to batch analysis. The rationale: every post from a direct competitor is worth reading; for broad industry feeds, the pre-filter avoids paying for articles that have nothing to do with CCaaS or Zoom.
+
+---
+
+### Auto-scoring second pass (`run_auto_scoring` in `src/main.py`)
+
+After the main pipeline finishes, a second pass runs automatically:
+
+1. Fetches up to 50 `seen_items` from the last 7 days that have **no entry** in `pending_insights` (i.e. were never scored — typically items that were below threshold on first pass or came from sources not yet analyzed).
+2. Sends them through `analyze_batch()` in batches of 5 using title only (no live content fetch).
+3. Applies two configurable thresholds from the `settings` table:
+   - `auto_inbox_threshold` (default **9**): score ≥ this → save as `status="suggested"` with `auto_scored=true`
+   - `auto_discard_threshold` (default **4**): score < inbox threshold → save as `status="discarded"` with `auto_scored=true`
+
+This pass is controlled by the `auto_scoring_enabled` setting (default `"true"`). It can be toggled off from the web UI settings without redeploying.
+
+---
+
+### On-demand scoring from the Feed page (`src/score_items.py`)
+
+When an analyst selects items in `/ingested` and clicks **"Score with Claude →"**, a different code path runs:
+
+```
+Analyst selects items in /ingested
+        │
+        ▼
+POST /api/seen-items/score  { ids: ["abc", "def", ...] }
+        │
+        ▼
+createScoringPlaceholders(ids)  [web/src/lib/db.ts]
+  • For each id:
+    - Already scored (pending/approved/review/suggested) → skip
+    - Has a "scoring" placeholder → keep (Python will pick it up)
+    - Has a "discarded" or "error" entry → reset to "scoring"
+    - No entry → INSERT into pending_insights with status="scoring",
+      score=0, classification="PENDING"
+  • Returns { created: [...], skipped: [...] }
+        │
+        ▼  created.length > 0
+spawn("python", ["-m", "src.score_items", "--ids", ...created, "--force"])
+  detached=false, stdio=ignore  ← runs in background, UI doesn't wait
+        │
+        ▼  API returns immediately: { ok: true, queued: N, alreadyScored: M }
+  → UI redirects analyst to /review
+```
+
+The spawned Python process runs `score_items()`:
+
+```
+For each item_id:
+  1. Fetch row from seen_items (title, url, competitor)
+  2. Live content fetch via httpx — GET the article URL,
+     strip <script>/<style>/<nav>/<footer> with BeautifulSoup,
+     take first 2000 chars of body text
+     Falls back to title only if fetch fails
+  3. Call analyze_item() → analyze_batch([single item])
+     (same Stage-2 Claude call as automated pipeline)
+  4. Evaluate result:
+     - insight is None → update placeholder to status="error"
+     - score < threshold AND --force not set → update to status="discarded"
+     - score < threshold AND --force set → update to status="suggested"
+       (user explicitly requested it — show them regardless)
+     - score >= threshold → update to status="pending"
+       (or INSERT if no placeholder existed)
+```
+
+The `--force` flag is always passed by the web UI, so even low-scoring items land in the review queue as `suggested` rather than being silently discarded. This lets analysts see what Claude found without the threshold acting as a hard gate on manual review.
+
+The "scoring" placeholder written before the Python process starts is what makes the Feed page show the pulsing `…` spinner in the Score column while the item is in-flight.
+
+---
+
+### Scoring decision matrix
+
+| Trigger | Content source | Threshold gate | Result status |
+|---|---|---|---|
+| Automated pipeline (CI) | RSS/HTML summary (~2000 chars) | `score_threshold` (default 7) | `pending` |
+| Auto-score second pass | Title only | `auto_inbox_threshold` (default 9) | `suggested` (auto_scored=true) |
+| On-demand, score ≥ threshold | Live-fetched article body | `score_threshold` | `pending` |
+| On-demand, score < threshold | Live-fetched article body | `score_threshold` (--force overrides) | `suggested` |
+| On-demand, analysis fails | — | — | `error` |
+| Already scored (any status) | — | — | skipped, not re-scored |
+
+---
 
 ### Python backend (`src/`)
 
