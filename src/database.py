@@ -229,12 +229,28 @@ def backfill_published_at_from_urls():
         ).fetchall()
         updates = []
         for row_id, url in rows:
+            date_str = None
+            # YYYY-MM-DD anywhere in the URL
             m = re.search(r'(\d{4}-\d{2}-\d{2})', url)
             if m:
-                updates.append((f"{m.group(1)}T00:00:00+00:00", row_id))
+                date_str = m.group(1)
+            else:
+                # /YYYY/MM/DD/ path segments
+                m = re.search(r'/(\d{4})/(\d{1,2})/(\d{1,2})(?:/|$)', url)
+                if m:
+                    date_str = f"{m.group(1)}-{m.group(2).zfill(2)}-{m.group(3).zfill(2)}"
+                else:
+                    # /YYYY/MM/ path segments (day unknown → 1st)
+                    m = re.search(r'/(\d{4})/(\d{1,2})(?:/|$)', url)
+                    if m:
+                        date_str = f"{m.group(1)}-{m.group(2).zfill(2)}-01"
+            if date_str:
+                updates.append((f"{date_str}T00:00:00+00:00", row_id))
         if updates:
             conn.executemany("UPDATE seen_items SET published_at=? WHERE id=?", updates)
             conn.commit()
+    if updates:
+        print(f"[INFO] Backfilled published_at for {len(updates)} items from URL patterns")
 
 
 def get_setting(key: str, default: str | None = None) -> str | None:

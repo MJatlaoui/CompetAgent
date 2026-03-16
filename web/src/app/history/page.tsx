@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Download } from "lucide-react";
+import { Download, ExternalLink } from "lucide-react";
 import { InsightCard } from "@/components/InsightCard";
 import { FilterBar, dateRangeToParam } from "@/components/FilterBar";
 import type { FilterState } from "@/components/FilterBar";
@@ -19,6 +19,11 @@ export default function HistoryPage() {
   const [status, setStatus] = useState("all");
   const [offset, setOffset] = useState(0);
   const [filters, setFilters] = useState<FilterState>({ search: "", dateRange: "all", classification: "" });
+  const [sheetUrl, setSheetUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/sheets/url").then(r => r.json()).then(d => setSheetUrl(d.url ?? null));
+  }, []);
 
   function buildParams(off = offset) {
     const p = new URLSearchParams({ limit: String(LIMIT), offset: String(off) });
@@ -85,10 +90,23 @@ export default function HistoryPage() {
     <div>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-bold">History</h2>
-        <Button variant="outline" size="sm" onClick={handleExportCsv}>
-          <Download className="w-4 h-4 mr-1.5" />
-          Export CSV
-        </Button>
+        <div className="flex items-center gap-2">
+          {sheetUrl && (
+            <a
+              href={sheetUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 h-9 px-3 text-sm border border-gray-200 rounded-md bg-white text-gray-700 hover:bg-gray-50 transition"
+            >
+              <ExternalLink className="w-4 h-4" />
+              Open in Sheets
+            </a>
+          )}
+          <Button variant="outline" size="sm" onClick={handleExportCsv}>
+            <Download className="w-4 h-4 mr-1.5" />
+            Export CSV
+          </Button>
+        </div>
       </div>
 
       <div className="flex gap-2 mb-3">

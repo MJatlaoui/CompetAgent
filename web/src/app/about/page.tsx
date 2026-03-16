@@ -190,7 +190,7 @@ npm run dev            # → http://localhost:3000`}</pre>
             <div className="flex flex-wrap gap-2">
               {stats.topCompetitors.map(({ competitor, count }) => (
                 <span key={competitor} className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs text-gray-700">
-                  {competitor}
+                  {competitor.replace(/_/g, " ")}
                   <span className="text-gray-400">{count}</span>
                 </span>
               ))}
@@ -212,11 +212,11 @@ npm run dev            # → http://localhost:3000`}</pre>
           {[
             { page: "Inbox",              path: "/review",    desc: "High-score pending insights awaiting analyst review. Approve, flag, or discard each item." },
             { page: "Flagged",            path: "/flagged",   desc: "Items marked for closer review — use for escalations or items needing more context before approval." },
-            { page: "Bulletin",           path: "/bulletin",  desc: "Newsletter-style digest of all approved insights, grouped by competitor." },
+            { page: "Intelligence Digest", path: "/bulletin",  desc: "Newsletter-style digest of all approved insights, grouped by competitor." },
             { page: "History",            path: "/history",   desc: "Full archive of all scored insights with filters for competitor, classification, status, and date range." },
             { page: "Dashboard",          path: "/dashboard", desc: "Trend charts, score quality distribution, source health, and volume stats." },
             { page: "Sources & Settings", path: "/sources",   desc: "Manage source feeds, toggle on/off, test connectivity, pause ingestion, export/import CSV." },
-            { page: "Feed",               path: "/ingested",  desc: "Raw feed of every URL seen by the scraper, before scoring. Searchable by title, source, and date." },
+            { page: "Feed",               path: "/ingested",  desc: "Raw feed of every URL seen by the scraper, before scoring. Searchable by title, source, and date. Includes a Refresh Feed button to trigger on-demand ingestion, and two date columns — Published (source date) and Added (when scraped)." },
           ].map(({ page, path, desc }) => (
             <div key={path} className="flex gap-3 px-4 py-3">
               <span className="w-36 shrink-0 font-medium text-gray-700">{page}</span>
@@ -262,6 +262,42 @@ npm run dev            # → http://localhost:3000`}</pre>
             </div>
           ))}
         </div>
+      </section>
+
+      {/* Thresholds */}
+      <section className="space-y-3">
+        <h2 className="text-base font-semibold text-gray-800">Thresholds & scoring</h2>
+        <p className="text-sm text-gray-600 leading-relaxed">
+          Several numeric thresholds control which items reach the Inbox. The <strong>Score Threshold</strong> setting in Sources &amp; Settings is fully wired end-to-end — changing it immediately affects which pipeline items are saved.
+        </p>
+        <div className="rounded-lg border border-gray-200 bg-white overflow-hidden text-sm">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-200">
+                <th className="text-left px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider w-2/5">Setting</th>
+                <th className="text-left px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider w-16">Default</th>
+                <th className="text-left px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Meaning</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 text-xs text-gray-600">
+              {[
+                ["score_threshold", "7", "Main pipeline (Stage 4): items with score ≥ threshold AND worth_surfacing=true are saved to the Inbox. Configurable in Sources & Settings."],
+                ["auto_inbox_threshold", "9", "Auto-scoring second pass (Stage 5): items scoring ≥ 9 are auto-suggested for review."],
+                ["auto_discard_threshold", "4", "Auto-scoring second pass (Stage 5): items scoring ≤ 4 are auto-discarded."],
+                ["High-Signal Today (fixed)", "≥ 8", "Banner metric in the header: count of insights with score ≥ 8 added today. This threshold is hardcoded, separate from score_threshold."],
+              ].map(([setting, def_, meaning]) => (
+                <tr key={setting}>
+                  <td className="px-4 py-2 font-mono font-medium text-gray-700">{setting}</td>
+                  <td className="px-4 py-2 font-mono text-gray-500">{def_}</td>
+                  <td className="px-4 py-2 text-gray-500">{meaning}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="text-sm text-gray-600 leading-relaxed">
+          When you manually score items from the Feed using <strong>Score with Claude</strong>, results always appear in the Inbox regardless of score — the threshold is not applied to manual scoring requests.
+        </p>
       </section>
 
       {/* Sub-scores */}
@@ -313,7 +349,7 @@ npm run dev            # → http://localhost:3000`}</pre>
         <ul className="text-sm text-gray-600 space-y-2 list-none">
           {[
             ["SQLite race condition", "CI writes seen.db every 2 hours. Concurrent web UI writes (e.g. status updates during a CI run) can collide. Use the web UI and CI sequentially if this is a concern."],
-            ["Published date accuracy", "If a feed doesn't include a publish date, the pipeline falls back to a date extracted from the URL, then to the scrape time. Dates shown in the feed may therefore be approximate."],
+            ["Published date accuracy", "The Feed shows two separate date columns: Published (from the source feed, or extracted from the URL) and Added (scrape time). If a feed doesn't include a publish date and none is found in the URL, the Published column is blank."],
             ["Fuzzy dedup false positives / negatives", "The 0.72 similarity threshold can occasionally merge distinct articles with similar titles, or allow near-duplicate paywalled re-posts through."],
             ["Claude JSON reliability", "Malformed JSON responses from Claude cause the item to be silently lost (no retry). Very rare with Haiku but possible under high load or API instability."],
             ["Batch ordering fragility", "Batches of 5 items sent to Claude are returned in declared order. If Claude reorders the JSON array, scores can be misattributed. This has not been observed in practice."],

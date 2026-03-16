@@ -124,3 +124,201 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* ─── Tactical / Intel-X theme ─────────────────────────────────────────────── */
+html.tactical {
+  /* Core semantic variables */
+  --background: oklch(0.08 0.04 148);
+  --foreground: oklch(0.9 0.08 148);
+  --card: oklch(0.11 0.05 148);
+  --card-foreground: oklch(0.9 0.08 148);
+  --popover: oklch(0.11 0.05 148);
+  --popover-foreground: oklch(0.9 0.08 148);
+  --primary: oklch(0.88 0.27 148);
+  --primary-foreground: oklch(0.08 0.04 148);
+  --secondary: oklch(0.14 0.04 148);
+  --secondary-foreground: oklch(0.9 0.08 148);
+  --muted: oklch(0.14 0.04 148);
+  --muted-foreground: oklch(0.52 0.07 148);
+  --accent: oklch(0.14 0.04 148);
+  --accent-foreground: oklch(0.88 0.27 148);
+  --destructive: oklch(0.65 0.24 25);
+  --border: oklch(0.88 0.27 148 / 18%);
+  --input: oklch(0.88 0.27 148 / 12%);
+  --ring: oklch(0.88 0.27 148 / 45%);
+  --radius: 0.125rem;
+
+  /* Sidebar */
+  --sidebar: oklch(0.08 0.04 148);
+  --sidebar-foreground: oklch(0.9 0.08 148);
+  --sidebar-border: oklch(0.88 0.27 148 / 18%);
+  --sidebar-accent: oklch(0.88 0.27 148 / 12%);
+  --sidebar-accent-foreground: oklch(0.88 0.27 148);
+  --sidebar-primary: oklch(0.88 0.27 148);
+  --sidebar-primary-foreground: oklch(0.08 0.04 148);
+  --sidebar-ring: oklch(0.88 0.27 148 / 45%);
+
+  /* ── Gray palette → green-tinted dark ── */
+  --color-gray-50:  oklch(0.10 0.04 148);
+  --color-gray-100: oklch(0.13 0.04 148);
+  --color-gray-200: oklch(0.88 0.27 148 / 14%);
+  --color-gray-300: oklch(0.88 0.27 148 / 24%);
+  --color-gray-400: oklch(0.56 0.09 148);
+  --color-gray-500: oklch(0.50 0.07 148);
+  --color-gray-600: oklch(0.64 0.09 148);
+  --color-gray-700: oklch(0.75 0.10 148);
+  --color-gray-800: oklch(0.83 0.12 148);
+  --color-gray-900: oklch(0.9  0.08 148);
+
+  /* ── Slate palette ── */
+  --color-slate-50:  oklch(0.10 0.04 148);
+  --color-slate-100: oklch(0.13 0.04 148);
+  --color-slate-200: oklch(0.88 0.27 148 / 14%);
+  --color-slate-300: oklch(0.88 0.27 148 / 24%);
+  --color-slate-400: oklch(0.56 0.09 148);
+  --color-slate-500: oklch(0.50 0.07 148);
+  --color-slate-700: oklch(0.75 0.10 148);
+  --color-slate-900: oklch(0.9  0.08 148);
+
+  /* ── Green (success/approve/pipeline) → neon green ── */
+  --color-green-50:  oklch(0.88 0.27 148 / 10%);
+  --color-green-100: oklch(0.88 0.27 148 / 20%);
+  --color-green-200: oklch(0.88 0.27 148 / 30%);
+  --color-green-500: oklch(0.88 0.27 148);
+  --color-green-600: oklch(0.84 0.28 148);
+  --color-green-700: oklch(0.80 0.27 148);
+
+  /* ── Orange (CTA "Approve" button, Read link, HeatBadge) → electric cyan in tactical ── */
+  --color-orange-50:  oklch(0.80 0.28 195 / 10%);
+  --color-orange-100: oklch(0.80 0.28 195 / 18%);
+  --color-orange-400: oklch(0.82 0.28 195);
+  --color-orange-500: oklch(0.80 0.28 195);
+  --color-orange-600: oklch(0.73 0.26 195);
+  --color-orange-700: oklch(0.66 0.24 195);
+
+  /* ── Red (destructive/archive/discard) ── */
+  --color-red-50:  oklch(0.65 0.24 25 / 10%);
+  --color-red-100: oklch(0.65 0.24 25 / 20%);
+  --color-red-200: oklch(0.65 0.24 25 / 30%);
+  --color-red-300: oklch(0.65 0.24 25 / 40%);
+  --color-red-400: oklch(0.65 0.24 25);
+  --color-red-500: oklch(0.62 0.24 25);
+  --color-red-600: oklch(0.57 0.22 25);
+  --color-red-700: oklch(0.52 0.20 25);
+
+  /* ── Amber (flag/review) ── */
+  --color-amber-50:  oklch(0.88 0.18 90 / 10%);
+  --color-amber-100: oklch(0.88 0.18 90 / 20%);
+  --color-amber-200: oklch(0.88 0.18 90 / 30%);
+  --color-amber-400: oklch(0.88 0.18 90);
+  --color-amber-600: oklch(0.78 0.17 90);
+  --color-amber-700: oklch(0.72 0.15 90);
+  --color-amber-800: oklch(0.62 0.14 90);
+  --color-amber-900: oklch(0.50 0.13 90);
+
+  /* ── Blue (links/info) ── */
+  --color-blue-50:  oklch(0.65 0.20 240 / 10%);
+  --color-blue-100: oklch(0.65 0.20 240 / 20%);
+  --color-blue-200: oklch(0.65 0.20 240 / 30%);
+  --color-blue-400: oklch(0.75 0.24 240);
+  --color-blue-600: oklch(0.63 0.23 240);
+  --color-blue-700: oklch(0.55 0.20 240);
+  --color-blue-800: oklch(0.48 0.18 240);
+
+  /* ── Violet (AI/tags) ── */
+  --color-violet-50:  oklch(0.72 0.20 290 / 10%);
+  --color-violet-100: oklch(0.72 0.20 290 / 20%);
+  --color-violet-200: oklch(0.72 0.20 290 / 30%);
+  --color-violet-500: oklch(0.75 0.24 290);
+  --color-violet-600: oklch(0.68 0.23 290);
+  --color-violet-700: oklch(0.60 0.20 290);
+
+  /* ── Indigo ── */
+  --color-indigo-600: oklch(0.60 0.20 270);
+
+  /* ── Purple ── */
+  --color-purple-50:  oklch(0.72 0.20 300 / 10%);
+  --color-purple-600: oklch(0.65 0.20 300);
+
+  /* ── Rose ── */
+  --color-rose-50:  oklch(0.65 0.24 15 / 10%);
+  --color-rose-600: oklch(0.60 0.22 15);
+}
+
+/* bg-white → tactical dark card */
+html.tactical .bg-white {
+  background-color: oklch(0.11 0.05 148) !important;
+}
+
+/* Tactical scan-line texture on the body */
+html.tactical body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    oklch(0.88 0.27 148 / 1.5%) 2px,
+    oklch(0.88 0.27 148 / 1.5%) 4px
+  );
+  z-index: 9999;
+}
+
+/* Tactical glow on the active nav item */
+html.tactical aside a[aria-current],
+html.tactical aside a.bg-gray-200 {
+  box-shadow: 0 0 10px oklch(0.88 0.27 148 / 20%);
+}
+
+/* Tactical heading uppercase + tracking */
+html.tactical h1,
+html.tactical h2 {
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+/* Tactical input/select styling */
+html.tactical input,
+html.tactical select,
+html.tactical textarea {
+  background-color: oklch(0.12 0.04 148) !important;
+  color: oklch(0.9 0.08 148) !important;
+  border-color: oklch(0.88 0.27 148 / 25%) !important;
+}
+
+/* Tactical scrollbar */
+html.tactical ::-webkit-scrollbar {
+  width: 6px;
+  background: oklch(0.08 0.04 148);
+}
+html.tactical ::-webkit-scrollbar-thumb {
+  background: oklch(0.88 0.27 148 / 30%);
+  border-radius: 0;
+}
+html.tactical ::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.88 0.27 148 / 50%);
+}
+
+/* ─── Tactical: remap orange → electric cyan, amber → yellow ────────────────
+   CSS variable overrides don't affect Tailwind v4 utilities (compiled as
+   hardcoded oklch values). These direct class overrides are the reliable fix.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Orange → electric cyan (hue 195): Read →, HeatBadge 70–89, SourceTag pill */
+html.tactical .bg-orange-50  { background-color: oklch(0.80 0.28 195 / 10%) !important; }
+html.tactical .bg-orange-100 { background-color: oklch(0.80 0.28 195 / 18%) !important; }
+html.tactical .bg-orange-400 { background-color: oklch(0.82 0.28 195) !important; }
+html.tactical .bg-orange-500 { background-color: oklch(0.80 0.28 195) !important; }
+html.tactical .hover\:bg-orange-600:hover { background-color: oklch(0.73 0.26 195) !important; }
+html.tactical .text-orange-700 { color: oklch(0.66 0.24 195) !important; }
+html.tactical .ring-orange-400 { --tw-ring-color: oklch(0.82 0.28 195); }
+
+/* Amber → yellow (hue 90): Competitive Gap box, Move to Review, Requeue */
+html.tactical .bg-amber-50    { background-color: oklch(0.88 0.18 90 / 10%) !important; }
+html.tactical .border-amber-200 { border-color: oklch(0.88 0.18 90 / 35%) !important; }
+html.tactical .text-amber-700 { color: oklch(0.78 0.17 90) !important; }
+html.tactical .hover\:text-amber-900:hover { color: oklch(0.60 0.15 90) !important; }
+html.tactical .text-amber-800 { color: oklch(0.72 0.16 90) !important; }
+html.tactical .text-amber-900 { color: oklch(0.65 0.14 90) !important; }

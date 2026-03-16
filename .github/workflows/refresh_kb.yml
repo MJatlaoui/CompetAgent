@@ -1,0 +1,24 @@
+name: Refresh Zoom Knowledge Base
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"   # every Monday at 6 AM UTC
+  workflow_dispatch:        # manual trigger
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install httpx beautifulsoup4
+      - run: python -m src.fetch_zoom_kb
+      - name: Commit updated knowledge base
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add prompts/zoom_knowledge.md
+          git diff --cached --quiet || git commit -m "chore: refresh Zoom knowledge base [skip ci]"
+          git push

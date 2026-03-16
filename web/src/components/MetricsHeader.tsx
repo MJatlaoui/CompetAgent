@@ -1,8 +1,19 @@
 import { getMetrics } from "@/lib/db";
-import { Clock, CheckCircle, Zap, Trophy, DollarSign } from "lucide-react";
+import { Clock, CheckCircle, Zap, Trophy, DollarSign, ActivitySquare, RefreshCw, Newspaper } from "lucide-react";
+
+function relativeTime(iso: string): string {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const diffMin = Math.floor(diffMs / 60_000);
+  if (diffMin < 1) return "just now";
+  if (diffMin < 60) return `${diffMin}m ago`;
+  const diffHr = Math.floor(diffMin / 60);
+  if (diffHr < 24) return `${diffHr}h ago`;
+  return `${Math.floor(diffHr / 24)}d ago`;
+}
 
 export function MetricsHeader() {
   const metrics = getMetrics();
+  const cleanCompetitor = metrics.topCompetitor.replace(/_/g, " ");
 
   const pills = [
     {
@@ -30,11 +41,35 @@ export function MetricsHeader() {
       title: undefined,
     },
     {
-      label: "Top Competitor",
-      value: metrics.topCompetitor,
+      label: "In Review",
+      value: String(metrics.inReview),
+      Icon: ActivitySquare,
+      color: "text-indigo-600",
+      bg: "bg-indigo-50",
+      title: undefined,
+    },
+    {
+      label: `Top Competitor · ${metrics.topCompetitorCount} mentions`,
+      value: cleanCompetitor,
       Icon: Trophy,
       color: "text-purple-600",
       bg: "bg-purple-50",
+      title: undefined,
+    },
+    {
+      label: "Last Sync",
+      value: metrics.lastSyncAt ? relativeTime(metrics.lastSyncAt) : "—",
+      Icon: RefreshCw,
+      color: "text-teal-600",
+      bg: "bg-teal-50",
+      title: metrics.lastSyncAt ?? undefined,
+    },
+    {
+      label: "New Today",
+      value: String(metrics.newToday),
+      Icon: Newspaper,
+      color: "text-orange-600",
+      bg: "bg-orange-50",
       title: undefined,
     },
     {

@@ -72,8 +72,8 @@ export default function ReviewPage() {
   }, []);
 
   useEffect(() => {
-    fetch("/api/stats").then(r => r.json()).then(data => {
-      setCompetitors((data.topCompetitors || []).map((c: { competitor: string }) => c.competitor));
+    fetch("/api/sources").then(r => r.json()).then(data => {
+      setCompetitors((data.competitors || []).map((c: { name: string }) => c.name));
     });
   }, []);
 
@@ -327,6 +327,7 @@ export default function ReviewPage() {
                 onSelect={handleSelect}
                 focused={focusedIndex === idx}
                 forceExpanded={expandedIds.has(insight.id)}
+                onToggleExpand={handleToggleExpand}
               />
             )
           )}

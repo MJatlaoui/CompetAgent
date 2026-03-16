@@ -16,13 +16,24 @@ import { WorkflowToolbar } from "./WorkflowToolbar";
 import { CLASSIFICATION_LABELS, CLASSIFICATION_BORDER } from "@/lib/classifications";
 
 const STATUS_STYLES: Record<string, string> = {
-  pending:      "text-gray-500 border-gray-300",
-  approved:     "text-green-700 border-green-400",
-  review:       "text-amber-700 border-amber-400",
-  discarded:    "text-red-600 border-red-400",
-  seen:         "text-blue-600 border-blue-400",
-  saved_offline:"text-indigo-600 border-indigo-400",
-  suggested:    "text-violet-600 border-violet-400",
+  pending:   "text-gray-500 border-gray-300",
+  approved:  "text-green-700 border-green-400",
+  review:    "text-amber-700 border-amber-400",
+  discarded: "text-red-600 border-red-400",
+  seen:      "text-blue-600 border-blue-400",
+  suggested: "text-violet-600 border-violet-400",
+  scoring:   "text-gray-400 border-gray-200",
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  pending:   "New",
+  suggested: "Suggested",
+  scoring:   "Scoring…",
+  review:    "Flagged",
+  approved:  "Approved",
+  discarded: "Archived",
+  seen:      "Seen",
+  error:     "Error",
 };
 
 interface InsightCardProps {
@@ -36,6 +47,7 @@ interface InsightCardProps {
   variant?: "default" | "bulletin";
   focused?: boolean;
   forceExpanded?: boolean;
+  onToggleExpand?: (id: string) => void;
 }
 
 export function InsightCard({
@@ -49,13 +61,19 @@ export function InsightCard({
   variant = "default",
   focused,
   forceExpanded,
+  onToggleExpand,
 }: InsightCardProps) {
   const [expanded, setExpanded] = useState(variant === "bulletin");
   const [isActing, setIsActing] = useState(false);
   const [actingButton, setActingButton] = useState<string | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
 
-  const isExpanded = forceExpanded !== undefined ? forceExpanded : expanded;
+  const isExpanded = onToggleExpand ? (forceExpanded ?? expanded) : expanded;
+
+  function toggleExpand() {
+    if (onToggleExpand) onToggleExpand(insight.id);
+    else setExpanded((e) => !e);
+  }
 
   function act(buttonKey: string, status: string) {
     if (isActing || !onStatusChange) return;
@@ -95,7 +113,7 @@ export function InsightCard({
             <div className="flex items-start gap-2">
               <div
                 className={`flex-1 min-w-0 ${!isBulletin ? "cursor-pointer" : ""}`}
-                onClick={() => !isBulletin && setExpanded((e) => !e)}
+                onClick={() => !isBulletin && toggleExpand()}
               >
                 {/* Meta row */}
                 <div className="flex items-center gap-2 flex-wrap mb-1">
@@ -113,7 +131,7 @@ export function InsightCard({
                     {CLASSIFICATION_LABELS[insight.classification] ?? insight.classification}
                   </Badge>
                   <span className={`text-xs border rounded-full px-2 py-0.5 ${statusCls}`}>
-                    {insight.status}
+                    {STATUS_LABELS[insight.status] ?? insight.status}
                   </span>
                   {insight.autoScored && (
                     <span className="inline-flex items-center gap-1 text-xs font-medium bg-violet-50 text-violet-600 border border-violet-200 px-1.5 py-0.5 rounded-full">
@@ -192,7 +210,7 @@ export function InsightCard({
                 )}
                 {!isBulletin && (
                   <button
-                    onClick={() => setExpanded((e) => !e)}
+                    onClick={toggleExpand}
                     className="text-gray-400 hover:text-gray-600 p-0.5"
                     aria-label="Toggle details"
                   >

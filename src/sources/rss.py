@@ -13,6 +13,25 @@ def _date_from_url(url: str) -> str | None:
     return None
 
 
+def _parse_entry_date(entry) -> str | None:
+    """Extract publish date from a feedparser entry as an ISO string (UTC).
+    Uses the parsed struct_time so it's timezone-normalised and reliable.
+    Falls back to raw string fields, then URL extraction."""
+    for attr in ("published_parsed", "updated_parsed", "created_parsed"):
+        t = entry.get(attr)
+        if t:
+            try:
+                return datetime(*t[:6], tzinfo=UTC).isoformat()
+            except Exception:
+                pass
+    # Raw string fallback (RFC 2822 or ISO — browsers can parse either)
+    for attr in ("published", "updated"):
+        v = entry.get(attr)
+        if v:
+            return v
+    return None
+
+
 class RSSAdapter:
     """Fetch items from an RSS or Atom feed."""
 
@@ -41,6 +60,6 @@ class RSSAdapter:
                 title=entry.get("title", ""),
                 url=entry.get("link", ""),
                 summary=entry.get("summary", entry.get("description", ""))[:2000],
-                published=entry.get("published") or _date_from_url(entry.get("link", "")) or datetime.now(UTC).isoformat(),
+                published=_parse_entry_date(entry) or _date_from_url(entry.get("link", "")) or "",
             ))
         return items

@@ -100,7 +100,7 @@ export function FilterBar({ value, onChange, onSearch, showClassification = true
           onChange={(e) => { set({ competitor: e.target.value || undefined }); }}
           className="h-8 text-sm border border-gray-200 rounded-md px-2 bg-white text-gray-700 focus:outline-none focus:border-blue-400"
         >
-          <option value="">All competitors</option>
+          <option value="">All sources</option>
           {competitors.map((c) => (
             <option key={c} value={c}>{c}</option>
           ))}

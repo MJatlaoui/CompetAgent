@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Inbox, Flag, Newspaper, Clock, Database, BarChart2, Settings, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTheme } from "@/components/ThemeProvider";
 
 const PRIMARY_NAV = [
   { href: "/ingested", label: "Feed",     Icon: Database,  countKey: null      },
@@ -69,6 +70,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const [counts, setCounts] = useState<Record<string, number>>({ pending: 0, review: 0 });
   const [lastSyncAt, setLastSyncAt] = useState<string | null>(null);
+  const { theme } = useTheme();
 
   useEffect(() => {
     function refresh() {
@@ -87,9 +89,16 @@ export function Sidebar() {
 
   return (
     <aside className="w-52 border-r bg-gray-50 p-4 flex flex-col shrink-0">
-      <h1 className="text-base font-bold mb-5 px-1 text-gray-900 tracking-tight">
-        CompetAgent
-      </h1>
+      <div className="mb-5 px-1">
+        <h1 className="text-base font-bold text-gray-900 tracking-tight">
+          {theme === "tactical" ? "INTEL-X" : "CompetAgent"}
+        </h1>
+        {theme === "tactical" && (
+          <p className="text-[10px] font-mono mt-0.5 text-green-500 uppercase tracking-widest opacity-70">
+            ◆ Tactical Mode
+          </p>
+        )}
+      </div>
 
       <div className="flex flex-col gap-0.5">
         {PRIMARY_NAV.map((item) => (

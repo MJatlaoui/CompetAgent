@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Bot, Trash2, Plus, Rss, Globe, ChevronDown, ChevronUp, Clock, Download, Upload, FlaskConical, CheckCircle2, XCircle, Loader2, AlertTriangle } from "lucide-react";
+import { Bot, Trash2, Plus, Rss, Globe, ChevronDown, ChevronUp, Clock, Download, Upload, FlaskConical, CheckCircle2, XCircle, Loader2, AlertTriangle, Monitor } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import type { CompetitorSource, IndustrySource, Feed } from "@/lib/sources";
 import { DisableAllButton } from "@/components/DisableAllButton";
+import { useTheme } from "@/components/ThemeProvider";
 
 const REFRESH_OPTIONS = [
   { label: "15 min", value: 0.25 },
@@ -350,6 +351,7 @@ function AddIndustryForm({ onAdd }: { onAdd: () => void }) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function SourcesPage() {
+  const { theme, setTheme } = useTheme();
   const [competitors, setCompetitors] = useState<CompetitorSource[]>([]);
   const [industry, setIndustry] = useState<IndustrySource[]>([]);
   const [fetchLog, setFetchLog] = useState<Record<string, string>>({});
@@ -577,11 +579,35 @@ export default function SourcesPage() {
         </div>
       )}
 
+      {/* Display Theme */}
+      <div className="flex items-center justify-between px-4 py-3 rounded-lg border mb-3 bg-white">
+        <div>
+          <span className="text-sm font-semibold text-gray-800">Display Theme</span>
+          <p className="text-xs text-gray-500 mt-0.5">
+            {theme === "tactical"
+              ? "Tactical — Intel-X dark mode with neon green palette"
+              : "Default — Clean light mode"}
+          </p>
+        </div>
+        <button
+          onClick={() => setTheme(theme === "tactical" ? "default" : "tactical")}
+          className={cn(
+            "flex items-center gap-2 px-4 py-2 rounded text-sm font-semibold transition-all",
+            theme === "tactical"
+              ? "bg-green-600 hover:bg-green-700 text-black border border-green-500"
+              : "bg-gray-900 hover:bg-gray-700 text-white border border-gray-700"
+          )}
+        >
+          <Monitor className="w-4 h-4" />
+          {theme === "tactical" ? "Switch to Default" : "Switch to Tactical"}
+        </button>
+      </div>
+
       {/* Score Threshold setting */}
       <div className="flex items-center justify-between px-4 py-3 rounded-lg border mb-3 bg-white">
         <div>
           <span className="text-sm font-semibold text-gray-800">Score Threshold</span>
-          <p className="text-xs text-gray-500 mt-0.5">Minimum score (1–10) for insights to appear in the Inbox</p>
+          <p className="text-xs text-gray-500 mt-0.5">Minimum score (1–10) for the automated pipeline to save items to the Inbox. Manual scoring from the Feed always shows results regardless of score.</p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <input

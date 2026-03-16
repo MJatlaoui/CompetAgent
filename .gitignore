@@ -1,4 +1,5 @@
 .env
+.env.*
 __pycache__/
 *.pyc
 *.pyo
@@ -6,3 +7,6 @@ __pycache__/
 web/.next/
 web/node_modules/
 .worktrees/
+.claude/settings.local.json
+.claude/settings.local.json.backup
+data/dry_run.db

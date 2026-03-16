@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, Download, Link, X, Tag } from "lucide-react";
+import { Eye, Link, X, Tag } from "lucide-react";
 
 interface WorkflowToolbarProps {
   insightId: string;
@@ -41,14 +41,6 @@ export function WorkflowToolbar({
         >
           <Eye className="w-3 h-3" />
           Already Seen
-        </button>
-        <button
-          onClick={() => onStatusChange?.(insightId, "saved_offline")}
-          className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-800 px-2 py-1 rounded hover:bg-gray-100 transition"
-          title="Save for offline review"
-        >
-          <Download className="w-3 h-3" />
-          Save Offline
         </button>
         <button
           onClick={() => setTagPickerOpen((v) => !v)}
